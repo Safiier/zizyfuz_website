@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>zizyfuz Photo Tool</title>
+    <style>
+      :root {
+        color: #202624;
+        background: #fbfaf7;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+        cursor: pointer;
+      }
+
+      .app {
+        display: grid;
+        gap: 2rem;
+        margin: 0 auto;
+        max-width: 1160px;
+        padding: clamp(1.2rem, 4vw, 3rem);
+      }
+
+      header {
+        border-bottom: 1px solid rgba(32, 38, 36, 0.14);
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        padding-bottom: 1.2rem;
+      }
+
+      h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(2rem, 4vw, 3.6rem);
+        font-weight: 400;
+        line-height: 1;
+        margin: 0;
+      }
+
+      .subtle {
+        color: rgba(32, 38, 36, 0.62);
+        margin: 0;
+      }
+
+      .layout {
+        display: grid;
+        gap: 1.4rem;
+        grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.74fr);
+      }
+
+      .panel {
+        border: 1px solid rgba(32, 38, 36, 0.14);
+        border-radius: 8px;
+        background: #fffdf9;
+        padding: 1rem;
+      }
+
+      .drop-zone {
+        align-items: center;
+        background: #f3f0e8;
+        border: 1px dashed rgba(32, 38, 36, 0.34);
+        border-radius: 8px;
+        display: grid;
+        min-height: 18rem;
+        padding: 1.4rem;
+        place-items: center;
+        text-align: center;
+      }
+
+      .drop-zone.dragging {
+        background: #ece7dc;
+        border-color: rgba(32, 38, 36, 0.72);
+      }
+
+      .primary,
+      .secondary,
+      .danger {
+        border-radius: 999px;
+        padding: 0.72rem 1.05rem;
+        transition:
+          opacity 180ms ease,
+          transform 180ms ease;
+      }
+
+      .primary {
+        background: #202624;
+        color: #fffdf9;
+      }
+
+      .secondary {
+        background: #e8e2d6;
+        color: #202624;
+      }
+
+      .danger {
+        background: #7a342d;
+        color: #fffdf9;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.42;
+      }
+
+      .preview {
+        display: none;
+        gap: 1rem;
+      }
+
+      .preview.visible {
+        display: grid;
+      }
+
+      .preview img {
+        border-radius: 8px;
+        max-height: 70vh;
+        object-fit: contain;
+        width: 100%;
+      }
+
+      .meta-grid {
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      label {
+        display: grid;
+        gap: 0.35rem;
+        font-size: 0.82rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      input,
+      select,
+      textarea {
+        background: #fbfaf7;
+        border: 1px solid rgba(32, 38, 36, 0.18);
+        border-radius: 6px;
+        color: #202624;
+        padding: 0.72rem;
+        text-transform: none;
+      }
+
+      textarea {
+        min-height: 5rem;
+        resize: vertical;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+      }
+
+      .notice {
+        background: #f3f0e8;
+        border-left: 3px solid rgba(32, 38, 36, 0.3);
+        border-radius: 6px;
+        padding: 0.75rem;
+      }
+
+      .notice.warning {
+        background: #fff5df;
+        border-color: #b87924;
+      }
+
+      .notice.danger {
+        background: #f8e8e4;
+        border-color: #9f4238;
+      }
+
+      .similar-list {
+        display: grid;
+        gap: 0.65rem;
+      }
+
+      .similar-item {
+        align-items: center;
+        display: grid;
+        gap: 0.7rem;
+        grid-template-columns: 5rem 1fr;
+      }
+
+      .similar-item img {
+        aspect-ratio: 4 / 3;
+        border-radius: 6px;
+        object-fit: cover;
+        width: 100%;
+      }
+
+      pre {
+        background: #202624;
+        border-radius: 8px;
+        color: #fffdf9;
+        max-height: 18rem;
+        overflow: auto;
+        padding: 1rem;
+        white-space: pre-wrap;
+      }
+
+      @media (max-width: 860px) {
+        header,
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        header {
+          display: grid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <div>
+          <h1>Photo Tool</h1>
+          <p class="subtle">拖入照片，确认信息，然后更新 zizyfuz gallery。</p>
+        </div>
+        <p class="subtle">本工具只在本机运行，不保存原图。</p>
+      </header>
+
+      <section class="layout">
+        <div class="panel">
+          <div class="drop-zone" id="dropZone">
+            <div>
+              <p>把 JPG / PNG / WEBP 拖到这里</p>
+              <p class="subtle">工具会生成网页用 JPG，最大边 2200px。</p>
+              <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden />
+              <button class="secondary" id="pickFileButton" type="button">选择照片</button>
+            </div>
+          </div>
+
+          <div class="preview" id="preview">
+            <img id="previewImage" alt="New photo preview" />
+            <p class="subtle" id="imageInfo"></p>
+          </div>
+        </div>
+
+        <aside class="panel">
+          <div class="meta-grid">
+            <div class="notice" id="statusBox">等待选择照片。</div>
+
+            <label>
+              Title
+              <input id="titleInput" type="text" />
+            </label>
+
+            <label>
+              Category
+              <select id="categoryInput"></select>
+            </label>
+
+            <label>
+              Slug / file name
+              <input id="slugInput" type="text" />
+            </label>
+
+            <label>
+              AI notes
+              <textarea id="notesInput" readonly></textarea>
+            </label>
+
+            <div id="similarBox"></div>
+
+            <label id="forceSimilarLabel" hidden>
+              <span>
+                <input id="forceSimilarInput" type="checkbox" />
+                仍然添加这张相似照片
+              </span>
+            </label>
+
+            <div class="actions">
+              <button class="primary" id="applyButton" type="button" disabled>应用到本地网站</button>
+              <button class="secondary" id="buildButton" type="button" disabled>运行 build 检查</button>
+              <button class="danger" id="publishButton" type="button" disabled>提交并推送 GitHub</button>
+            </div>
+
+            <pre id="logBox" hidden></pre>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      const maxSide = 2200;
+      const jpegQuality = 0.86;
+      const highSimilarityDistance = 8;
+      const possibleSimilarityDistance = 14;
+      const state = {
+        sitePhotos: [],
+        categories: [],
+        compressedDataUrl: null,
+        orientation: 'landscape',
+        fileName: null,
+        hash: null,
+        similar: [],
+        changedFiles: [],
+        appliedTitle: null,
+      };
+
+      const elements = {
+        dropZone: document.querySelector('#dropZone'),
+        fileInput: document.querySelector('#fileInput'),
+        pickFileButton: document.querySelector('#pickFileButton'),
+        preview: document.querySelector('#preview'),
+        previewImage: document.querySelector('#previewImage'),
+        imageInfo: document.querySelector('#imageInfo'),
+        statusBox: document.querySelector('#statusBox'),
+        titleInput: document.querySelector('#titleInput'),
+        categoryInput: document.querySelector('#categoryInput'),
+        slugInput: document.querySelector('#slugInput'),
+        notesInput: document.querySelector('#notesInput'),
+        similarBox: document.querySelector('#similarBox'),
+        forceSimilarLabel: document.querySelector('#forceSimilarLabel'),
+        forceSimilarInput: document.querySelector('#forceSimilarInput'),
+        applyButton: document.querySelector('#applyButton'),
+        buildButton: document.querySelector('#buildButton'),
+        publishButton: document.querySelector('#publishButton'),
+        logBox: document.querySelector('#logBox'),
+      };
+
+      init();
+
+      async function init() {
+        await loadSitePhotos();
+        bindEvents();
+      }
+
+      function bindEvents() {
+        elements.pickFileButton.addEventListener('click', () => elements.fileInput.click());
+        elements.fileInput.addEventListener('change', () => {
+          const file = elements.fileInput.files?.[0];
+          if (file) {
+            handleFile(file);
+          }
+        });
+
+        for (const eventName of ['dragenter', 'dragover']) {
+          elements.dropZone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            elements.dropZone.classList.add('dragging');
+          });
+        }
+
+        for (const eventName of ['dragleave', 'drop']) {
+          elements.dropZone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            elements.dropZone.classList.remove('dragging');
+          });
+        }
+
+        elements.dropZone.addEventListener('drop', (event) => {
+          const file = event.dataTransfer.files?.[0];
+          if (file) {
+            handleFile(file);
+          }
+        });
+
+        elements.forceSimilarInput.addEventListener('change', updateApplyButton);
+        elements.titleInput.addEventListener('input', updateApplyButton);
+        elements.categoryInput.addEventListener('change', updateApplyButton);
+        elements.slugInput.addEventListener('input', updateApplyButton);
+        elements.applyButton.addEventListener('click', applyPhoto);
+        elements.buildButton.addEventListener('click', runBuild);
+        elements.publishButton.addEventListener('click', publishPhoto);
+      }
+
+      async function loadSitePhotos() {
+        const data = await apiGet('/api/site-photos');
+        state.sitePhotos = data.photos;
+        state.categories = data.categories;
+        elements.categoryInput.innerHTML = data.categories
+          .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
+          .join('');
+      }
+
+      async function handleFile(file) {
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+          setStatus('请使用 JPG、PNG 或 WEBP 图片。', 'danger');
+          return;
+        }
+
+        resetForNewPhoto();
+        state.fileName = file.name;
+        setStatus('正在压缩图片并计算相似度...');
+
+        const processed = await compressImage(file);
+        state.compressedDataUrl = processed.dataUrl;
+        state.orientation = processed.width >= processed.height ? 'landscape' : 'portrait';
+        state.hash = await averageHash(processed.dataUrl);
+
+        elements.previewImage.src = processed.dataUrl;
+        elements.preview.classList.add('visible');
+        elements.imageInfo.textContent =
+          `${file.name} -> ${processed.width} x ${processed.height}px, ${state.orientation}`;
+
+        await findSimilarPhotos();
+        await analyzePhoto();
+        updateApplyButton();
+      }
+
+      function resetForNewPhoto() {
+        state.changedFiles = [];
+        state.appliedTitle = null;
+        elements.buildButton.disabled = true;
+        elements.publishButton.disabled = true;
+        elements.logBox.hidden = true;
+        elements.logBox.textContent = '';
+        elements.forceSimilarInput.checked = false;
+        elements.forceSimilarLabel.hidden = true;
+        elements.similarBox.innerHTML = '';
+      }
+
+      async function compressImage(file) {
+        const bitmap = await createImageBitmap(file);
+        const ratio = Math.min(maxSide / bitmap.width, maxSide / bitmap.height, 1);
+        const width = Math.max(1, Math.round(bitmap.width * ratio));
+        const height = Math.max(1, Math.round(bitmap.height * ratio));
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        context.drawImage(bitmap, 0, 0, width, height);
+
+        return {
+          dataUrl: canvas.toDataURL('image/jpeg', jpegQuality),
+          width,
+          height,
+        };
+      }
+
+      async function analyzePhoto() {
+        setStatus('正在请求 AI 识别标题和分类...');
+        const data = await apiPost('/api/analyze', {
+          imageDataUrl: state.compressedDataUrl,
+          fileName: state.fileName,
+        });
+
+        elements.titleInput.value = data.title;
+        elements.categoryInput.value = data.category;
+        elements.slugInput.value = data.slug;
+        elements.notesInput.value = data.notes || '';
+
+        if (data.source === 'fallback') {
+          setStatus(`AI 暂不可用，已用文件名生成初稿：${data.warning}`, 'warning');
+          return;
+        }
+
+        setStatus(`AI 已生成建议，confidence: ${Math.round(data.confidence * 100)}%。请检查后应用。`);
+      }
+
+      async function findSimilarPhotos() {
+        const results = [];
+
+        for (const photo of state.sitePhotos) {
+          try {
+            const hash = await averageHash(photo.src);
+            results.push({
+              ...photo,
+              distance: hammingDistance(state.hash, hash),
+            });
+          } catch {
+            // Skip images that cannot be loaded in the local tool.
+          }
+        }
+
+        state.similar = results.sort((a, b) => a.distance - b.distance).slice(0, 3);
+        renderSimilarPhotos();
+      }
+
+      function renderSimilarPhotos() {
+        const closeMatches = state.similar.filter((photo) => photo.distance <= possibleSimilarityDistance);
+
+        if (closeMatches.length === 0) {
+          elements.similarBox.innerHTML = '<div class="notice">没有发现明显相似的已有照片。</div>';
+          return;
+        }
+
+        const strongest = closeMatches[0];
+        const tone = strongest.distance <= highSimilarityDistance ? 'danger' : 'warning';
+        const title =
+          strongest.distance <= highSimilarityDistance
+            ? '发现高度相似照片，请确认是否仍然添加。'
+            : '发现可能相似的照片，建议检查。';
+
+        elements.forceSimilarLabel.hidden = strongest.distance > highSimilarityDistance;
+        elements.similarBox.innerHTML = `
+          <div class="notice ${tone}">
+            ${title}
+          </div>
+          <div class="similar-list">
+            ${closeMatches.map(renderSimilarItem).join('')}
+          </div>
+        `;
+      }
+
+      function renderSimilarItem(photo) {
+        return `
+          <div class="similar-item">
+            <img src="${escapeHtml(photo.src)}" alt="" />
+            <div>
+              <strong>${escapeHtml(photo.title)}</strong>
+              <p class="subtle">${escapeHtml(photo.category)} / hash distance ${photo.distance}</p>
+            </div>
+          </div>
+        `;
+      }
+
+      function updateApplyButton() {
+        const highSimilarity = state.similar.some((photo) => photo.distance <= highSimilarityDistance);
+        const hasRequiredFields =
+          state.compressedDataUrl &&
+          elements.titleInput.value.trim() &&
+          elements.categoryInput.value &&
+          elements.slugInput.value.trim();
+
+        elements.applyButton.disabled =
+          !hasRequiredFields || (highSimilarity && !elements.forceSimilarInput.checked);
+      }
+
+      async function applyPhoto() {
+        elements.applyButton.disabled = true;
+        setStatus('正在写入 public/photos-web 和 src/data/photos.js...');
+
+        const data = await apiPost('/api/apply', {
+          imageDataUrl: state.compressedDataUrl,
+          fileName: state.fileName,
+          title: elements.titleInput.value.trim(),
+          category: elements.categoryInput.value,
+          slug: elements.slugInput.value.trim(),
+          orientation: state.orientation,
+        });
+
+        state.changedFiles = data.changedFiles;
+        state.appliedTitle = data.record.title;
+        elements.slugInput.value = data.record.slug;
+        elements.buildButton.disabled = false;
+        setStatus(`已应用到本地网站：${data.record.title}。下一步请运行 build 检查。`);
+      }
+
+      async function runBuild() {
+        elements.buildButton.disabled = true;
+        elements.publishButton.disabled = true;
+        setStatus('正在运行 npm run build...');
+
+        const data = await apiPost('/api/build', {}, { allowFailure: true });
+        showLog(
+          [
+            data.build.stdout,
+            data.build.stderr,
+            '--- git status ---',
+            data.gitStatus || '(clean)',
+          ].join('\n')
+        );
+
+        if (!data.ok) {
+          setStatus('Build 失败，已阻止发布。请查看日志。', 'danger');
+          elements.buildButton.disabled = false;
+          return;
+        }
+
+        setStatus('Build 通过。确认无误后可以提交并推送 GitHub。');
+        elements.publishButton.disabled = false;
+      }
+
+      async function publishPhoto() {
+        elements.publishButton.disabled = true;
+        setStatus('正在 git add / commit / push...');
+
+        const data = await apiPost(
+          '/api/publish',
+          {
+            changedFiles: state.changedFiles,
+            title: state.appliedTitle,
+          },
+          { allowFailure: true }
+        );
+
+        showLog([data.commit?.stdout, data.commit?.stderr, data.push?.stdout, data.push?.stderr].join('\n'));
+
+        if (!data.ok) {
+          setStatus(`发布失败：${data.step}`, 'danger');
+          elements.publishButton.disabled = false;
+          return;
+        }
+
+        setStatus('已推送到 GitHub。GitHub Actions 会自动刷新网站。');
+      }
+
+      async function averageHash(source) {
+        const image = await loadImage(source);
+        const canvas = document.createElement('canvas');
+        canvas.width = 16;
+        canvas.height = 16;
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        context.drawImage(image, 0, 0, 16, 16);
+        const pixels = context.getImageData(0, 0, 16, 16).data;
+        const values = [];
+
+        for (let index = 0; index < pixels.length; index += 4) {
+          values.push(pixels[index] * 0.299 + pixels[index + 1] * 0.587 + pixels[index + 2] * 0.114);
+        }
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        return values.map((value) => (value >= average ? '1' : '0')).join('');
+      }
+
+      function hammingDistance(left, right) {
+        let distance = 0;
+        for (let index = 0; index < Math.min(left.length, right.length); index += 1) {
+          if (left[index] !== right[index]) {
+            distance += 1;
+          }
+        }
+        return distance + Math.abs(left.length - right.length);
+      }
+
+      function loadImage(source) {
+        return new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => resolve(image);
+          image.onerror = reject;
+          image.src = source;
+        });
+      }
+
+      async function apiGet(path) {
+        const response = await fetch(path);
+        const data = await response.json();
+        if (!response.ok || data.ok === false) {
+          throw new Error(data.message || `Request failed: ${path}`);
+        }
+        return data;
+      }
+
+      async function apiPost(path, body, options = {}) {
+        const response = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await response.json();
+        if (!options.allowFailure && (!response.ok || data.ok === false)) {
+          showLog(JSON.stringify(data, null, 2));
+          throw new Error(data.message || `Request failed: ${path}`);
+        }
+        return data;
+      }
+
+      function setStatus(message, type = '') {
+        elements.statusBox.className = `notice ${type}`.trim();
+        elements.statusBox.textContent = message;
+      }
+
+      function showLog(message) {
+        elements.logBox.hidden = false;
+        elements.logBox.textContent = message.trim();
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+    </script>
+  </body>
+</html>

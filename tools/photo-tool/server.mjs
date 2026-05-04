@@ -1,0 +1,524 @@
+import { createServer } from 'node:http';
+import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const projectRoot = path.resolve(__dirname, '..', '..');
+const publicPhotosDir = path.join(projectRoot, 'public', 'photos-web');
+const photosDataPath = path.join(projectRoot, 'src', 'data', 'photos.js');
+const envPath = path.join(projectRoot, '.env.local');
+const port = Number(process.env.PHOTO_TOOL_PORT ?? 5174);
+
+const categories = [
+  'Coast',
+  'Landscape',
+  'City',
+  'Wildlife',
+  'People',
+  'Nature',
+  'Travel',
+  'Still Life',
+];
+
+const allowedPublishPathPattern = /^(src\/data\/photos\.js|public\/photos-web\/[a-z0-9-]+\.jpg)$/;
+
+function jsonResponse(response, statusCode, payload) {
+  const body = JSON.stringify(payload);
+  response.writeHead(statusCode, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Length': Buffer.byteLength(body),
+  });
+  response.end(body);
+}
+
+function textResponse(response, statusCode, body, contentType = 'text/plain; charset=utf-8') {
+  response.writeHead(statusCode, {
+    'Content-Type': contentType,
+    'Content-Length': Buffer.byteLength(body),
+  });
+  response.end(body);
+}
+
+async function readJsonRequest(request) {
+  const chunks = [];
+  for await (const chunk of request) {
+    chunks.push(chunk);
+  }
+
+  const raw = Buffer.concat(chunks).toString('utf8');
+  return raw ? JSON.parse(raw) : {};
+}
+
+async function readEnv() {
+  if (!existsSync(envPath)) {
+    return {};
+  }
+
+  const raw = await readFile(envPath, 'utf8');
+  const env = {};
+
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue;
+    }
+
+    const equalsIndex = trimmed.indexOf('=');
+    if (equalsIndex === -1) {
+      continue;
+    }
+
+    const key = trimmed.slice(0, equalsIndex).trim();
+    const value = trimmed.slice(equalsIndex + 1).trim().replace(/^['"]|['"]$/g, '');
+    env[key] = value;
+  }
+
+  return env;
+}
+
+function slugify(value) {
+  const slug = String(value ?? '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return slug || 'photo';
+}
+
+function titleFromFileName(fileName) {
+  const baseName = path.basename(fileName ?? 'photo', path.extname(fileName ?? 'photo'));
+  const words = baseName
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!words) {
+    return 'Untitled Photo';
+  }
+
+  return words.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+function extractRawPhotosBody(source) {
+  const startMarker = 'const rawPhotos = [';
+  const start = source.indexOf(startMarker);
+  if (start === -1) {
+    throw new Error('Could not find rawPhotos array in src/data/photos.js.');
+  }
+
+  const bodyStart = start + startMarker.length;
+  const end = source.indexOf('\n];', bodyStart);
+  if (end === -1) {
+    throw new Error('Could not find the end of rawPhotos array in src/data/photos.js.');
+  }
+
+  return {
+    before: source.slice(0, bodyStart),
+    body: source.slice(bodyStart, end),
+    after: source.slice(end),
+  };
+}
+
+function readStringField(objectSource, fieldName) {
+  const match = objectSource.match(new RegExp(`${fieldName}:\\s*'([^']*)'`));
+  return match?.[1] ?? null;
+}
+
+async function readPhotos() {
+  const source = await readFile(photosDataPath, 'utf8');
+  const { body } = extractRawPhotosBody(source);
+  const records = [];
+  const objectPattern = /\{\s*([\s\S]*?)\n  \}/g;
+  let match;
+
+  while ((match = objectPattern.exec(body)) !== null) {
+    const objectSource = match[1];
+    const slug = readStringField(objectSource, 'slug');
+    const src = readStringField(objectSource, 'src');
+
+    if (!slug || !src) {
+      continue;
+    }
+
+    records.push({
+      slug,
+      title: readStringField(objectSource, 'title') ?? slug,
+      category: readStringField(objectSource, 'category') ?? 'Travel',
+      orientation: readStringField(objectSource, 'orientation') ?? 'landscape',
+      src,
+      fileName: path.basename(src),
+    });
+  }
+
+  return records;
+}
+
+async function createUniqueSlug(requestedSlug) {
+  const photos = await readPhotos();
+  const existingSlugs = new Set(photos.map((photo) => photo.slug));
+  const baseSlug = slugify(requestedSlug);
+  let slug = baseSlug;
+  let index = 2;
+
+  while (
+    existingSlugs.has(slug) ||
+    existsSync(path.join(publicPhotosDir, `${slug}.jpg`))
+  ) {
+    slug = `${baseSlug}-${index}`;
+    index += 1;
+  }
+
+  return slug;
+}
+
+function decodeImageDataUrl(imageDataUrl) {
+  const match = String(imageDataUrl ?? '').match(/^data:image\/(?:jpeg|jpg);base64,([a-zA-Z0-9+/=]+)$/);
+  if (!match) {
+    throw new Error('Expected a JPEG data URL generated by the photo tool.');
+  }
+
+  return Buffer.from(match[1], 'base64');
+}
+
+function photoRecordToSource(record) {
+  const featuredLine = record.featured ? '    featured: true,\n' : '';
+
+  return `  {
+    slug: '${record.slug}',
+    title: '${escapeJsString(record.title)}',
+    category: '${escapeJsString(record.category)}',
+    orientation: '${record.orientation}',
+${featuredLine}    src: '/photos-web/${record.slug}.jpg',
+    original: null,
+  },`;
+}
+
+function escapeJsString(value) {
+  return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+async function appendPhotoRecord(record) {
+  const source = await readFile(photosDataPath, 'utf8');
+  const parts = extractRawPhotosBody(source);
+  const nextSource = `${parts.before}${parts.body}\n${photoRecordToSource(record)}${parts.after}`;
+  await writeFile(photosDataPath, nextSource, 'utf8');
+}
+
+async function analyzeWithOpenAI({ imageDataUrl, fileName }) {
+  const env = await readEnv();
+  const apiKey = env.OPENAI_API_KEY ?? process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    return fallbackAnalysis(fileName, 'No OPENAI_API_KEY found in .env.local.');
+  }
+
+  const schema = {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      title: { type: 'string' },
+      category: { type: 'string', enum: categories },
+      slug: { type: 'string' },
+      confidence: { type: 'number', minimum: 0, maximum: 1 },
+      notes: { type: 'string' },
+    },
+    required: ['title', 'category', 'slug', 'confidence', 'notes'],
+  };
+
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: env.OPENAI_PHOTO_MODEL ?? 'gpt-5.2',
+      reasoning: { effort: 'none' },
+      text: {
+        verbosity: 'low',
+        format: {
+          type: 'json_schema',
+          name: 'photo_metadata',
+          strict: true,
+          schema,
+        },
+      },
+      input: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'input_text',
+              text:
+                `Analyze this photograph for a minimalist photography portfolio. ` +
+                `Choose exactly one category from: ${categories.join(', ')}. ` +
+                `Return a concise English title and a URL-safe slug. ` +
+                `Original file name: ${fileName ?? 'unknown'}.`,
+            },
+            {
+              type: 'input_image',
+              image_url: imageDataUrl,
+            },
+          ],
+        },
+      ],
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const detail = data.error?.message ?? `OpenAI request failed with ${response.status}.`;
+    return fallbackAnalysis(fileName, detail);
+  }
+
+  const outputText =
+    data.output_text ??
+    data.output
+      ?.flatMap((item) => item.content ?? [])
+      ?.map((content) => content.text)
+      ?.filter(Boolean)
+      ?.join('\n');
+
+  if (!outputText) {
+    return fallbackAnalysis(fileName, 'OpenAI returned no text output.');
+  }
+
+  try {
+    const parsed = JSON.parse(outputText);
+    const uniqueSlug = await createUniqueSlug(parsed.slug || parsed.title || fileName);
+
+    return {
+      ok: true,
+      source: 'openai',
+      title: parsed.title || titleFromFileName(fileName),
+      category: categories.includes(parsed.category) ? parsed.category : 'Travel',
+      slug: uniqueSlug,
+      confidence: Number(parsed.confidence ?? 0),
+      notes: parsed.notes || '',
+      warning: null,
+    };
+  } catch (error) {
+    return fallbackAnalysis(fileName, `Could not parse OpenAI JSON: ${error.message}`);
+  }
+}
+
+async function fallbackAnalysis(fileName, warning) {
+  const title = titleFromFileName(fileName);
+  const slug = await createUniqueSlug(slugify(title));
+
+  return {
+    ok: true,
+    source: 'fallback',
+    title,
+    category: 'Travel',
+    slug,
+    confidence: 0,
+    notes: 'Please review the title and category manually before applying.',
+    warning,
+  };
+}
+
+function runCommand(command, args) {
+  return new Promise((resolve) => {
+    const needsShell = process.platform === 'win32' && command.toLowerCase().endsWith('.cmd');
+    const spawnCommand = needsShell ? process.env.ComSpec ?? 'cmd.exe' : command;
+    const commandLine = [quoteCmdArg(command), ...args.map(quoteCmdArg)].join(' ');
+    const spawnArgs = needsShell
+      ? ['/d', '/c', `"${commandLine}"`]
+      : args;
+    const child = spawn(spawnCommand, spawnArgs, {
+      cwd: projectRoot,
+      shell: false,
+      windowsHide: true,
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk.toString();
+    });
+
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk.toString();
+    });
+
+    child.on('error', (error) => {
+      resolve({ ok: false, code: null, stdout, stderr: `${stderr}\n${error.message}`.trim() });
+    });
+
+    child.on('close', (code) => {
+      resolve({ ok: code === 0, code, stdout, stderr });
+    });
+  });
+}
+
+function quoteCmdArg(value) {
+  return `"${String(value).replace(/"/g, '""')}"`;
+}
+
+function nodeCommand() {
+  const windowsNode = 'C:\\Program Files\\nodejs\\node.exe';
+  return existsSync(windowsNode) ? windowsNode : 'node';
+}
+
+function gitCommand() {
+  const windowsGit = 'C:\\Program Files\\Git\\cmd\\git.exe';
+  return existsSync(windowsGit) ? windowsGit : 'git';
+}
+
+async function runBuild() {
+  return runCommand(nodeCommand(), ['node_modules/vite/bin/vite.js', 'build']);
+}
+
+async function gitStatusShort() {
+  return runCommand(gitCommand(), ['status', '--short']);
+}
+
+async function handleApi(request, response, pathname) {
+  if (request.method === 'GET' && pathname === '/api/site-photos') {
+    const photos = await readPhotos();
+    jsonResponse(response, 200, { ok: true, photos, categories });
+    return;
+  }
+
+  if (request.method === 'POST' && pathname === '/api/analyze') {
+    const body = await readJsonRequest(request);
+    const analysis = await analyzeWithOpenAI(body);
+    jsonResponse(response, 200, analysis);
+    return;
+  }
+
+  if (request.method === 'POST' && pathname === '/api/apply') {
+    const body = await readJsonRequest(request);
+    const slug = await createUniqueSlug(body.slug || body.title || body.fileName);
+    const record = {
+      slug,
+      title: body.title || titleFromFileName(body.fileName),
+      category: categories.includes(body.category) ? body.category : 'Travel',
+      orientation: body.orientation === 'portrait' ? 'portrait' : 'landscape',
+    };
+
+    await mkdir(publicPhotosDir, { recursive: true });
+    const imageBuffer = decodeImageDataUrl(body.imageDataUrl);
+    const imagePath = path.join(publicPhotosDir, `${slug}.jpg`);
+    await writeFile(imagePath, imageBuffer);
+    await appendPhotoRecord(record);
+
+    jsonResponse(response, 200, {
+      ok: true,
+      record: {
+        ...record,
+        src: `/photos-web/${slug}.jpg`,
+        original: null,
+      },
+      changedFiles: [`public/photos-web/${slug}.jpg`, 'src/data/photos.js'],
+    });
+    return;
+  }
+
+  if (request.method === 'POST' && pathname === '/api/build') {
+    const build = await runBuild();
+    const status = await gitStatusShort();
+    jsonResponse(response, build.ok ? 200 : 500, {
+      ok: build.ok,
+      build,
+      gitStatus: status.stdout,
+    });
+    return;
+  }
+
+  if (request.method === 'POST' && pathname === '/api/publish') {
+    const body = await readJsonRequest(request);
+    const changedFiles = Array.isArray(body.changedFiles) ? body.changedFiles : [];
+    const safeFiles = changedFiles.filter((filePath) => allowedPublishPathPattern.test(filePath));
+
+    if (!safeFiles.includes('src/data/photos.js') || safeFiles.length < 2) {
+      jsonResponse(response, 400, {
+        ok: false,
+        message: 'Publish needs src/data/photos.js and one public/photos-web/*.jpg file.',
+      });
+      return;
+    }
+
+    const add = await runCommand(gitCommand(), ['add', ...safeFiles]);
+    if (!add.ok) {
+      jsonResponse(response, 500, { ok: false, step: 'git add', result: add });
+      return;
+    }
+
+    const title = body.title ? `Add ${body.title} to gallery` : 'Add photo to gallery';
+    const commit = await runCommand(gitCommand(), ['commit', '-m', title]);
+    if (!commit.ok) {
+      jsonResponse(response, 500, { ok: false, step: 'git commit', result: commit });
+      return;
+    }
+
+    const push = await runCommand(gitCommand(), ['push']);
+    jsonResponse(response, push.ok ? 200 : 500, {
+      ok: push.ok,
+      step: push.ok ? 'done' : 'git push',
+      commit,
+      push,
+    });
+    return;
+  }
+
+  jsonResponse(response, 404, { ok: false, message: 'Unknown API endpoint.' });
+}
+
+async function serveStatic(request, response, pathname) {
+  if (pathname === '/') {
+    const html = await readFile(path.join(__dirname, 'index.html'), 'utf8');
+    textResponse(response, 200, html, 'text/html; charset=utf-8');
+    return;
+  }
+
+  if (pathname.startsWith('/photos-web/')) {
+    const fileName = path.basename(pathname);
+    const imagePath = path.join(publicPhotosDir, fileName);
+    const imageStat = await stat(imagePath).catch(() => null);
+    if (!imageStat?.isFile()) {
+      textResponse(response, 404, 'Not found');
+      return;
+    }
+
+    response.writeHead(200, {
+      'Content-Type': 'image/jpeg',
+      'Content-Length': imageStat.size,
+    });
+    response.end(await readFile(imagePath));
+    return;
+  }
+
+  textResponse(response, 404, 'Not found');
+}
+
+const server = createServer(async (request, response) => {
+  try {
+    const url = new URL(request.url, `http://${request.headers.host}`);
+
+    if (url.pathname.startsWith('/api/')) {
+      await handleApi(request, response, url.pathname);
+      return;
+    }
+
+    await serveStatic(request, response, url.pathname);
+  } catch (error) {
+    jsonResponse(response, 500, {
+      ok: false,
+      message: error.message,
+    });
+  }
+});
+
+server.listen(port, '127.0.0.1', () => {
+  console.log(`Photo tool running at http://127.0.0.1:${port}`);
+});
