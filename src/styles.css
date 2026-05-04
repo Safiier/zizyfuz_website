@@ -400,11 +400,20 @@ p {
 
 .site-footer .logo-image {
   filter: invert(1);
+  height: clamp(2.4rem, 3.2vw, 3.2rem);
 }
 
 .site-footer .logo-name {
   color: #1f2524;
+  font-size: clamp(1.15rem, 1.8vw, 1.65rem);
+  letter-spacing: 0.28em;
+  padding-left: 0;
   text-shadow: none;
+}
+
+.site-footer .logo {
+  flex-direction: row;
+  gap: 0.95rem;
 }
 
 @media (max-width: 900px) {
@@ -461,6 +470,10 @@ p {
   .site-footer {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .site-footer .logo {
+    flex-direction: row;
   }
 
   .site-footer p {
