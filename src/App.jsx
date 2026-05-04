@@ -43,21 +43,20 @@ function Home() {
 }
 
 function About() {
+  const aboutPhoto = photos.find((photo) => photo.slug === 'death-water') ?? photos[0];
+
   return (
     <section className="section about-section" id="about" aria-labelledby="about-title">
-      <div>
-        <p className="eyebrow">About</p>
-        <h2 id="about-title">A personal archive of light, distance, and detail.</h2>
+      <div className="about-image-frame">
+        <img src={aboutPhoto.src} alt={aboutPhoto.title} />
       </div>
       <div className="about-copy">
+        <p className="eyebrow">About</p>
+        <h2 id="about-title">"You must be the first audience of your own life."</h2>
         <p>
-          zizyfuz works across landscape, wildlife, travel, and candid human
-          scenes. The portfolio is built to keep the photographs generous on the
-          page, with enough quiet space for each frame to breathe.
-        </p>
-        <p>
-          This site is ready to grow: new photographs can be added through a
-          single photo list, without changing the core design.
+          I lived in Chongqing, Singapore, and currently pursuing a degree in
+          the UK. Photography is the channel that allows me to explore the world
+          and myself.
         </p>
       </div>
     </section>
