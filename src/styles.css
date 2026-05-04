@@ -54,6 +54,8 @@ img {
 .logo {
   align-items: center;
   display: inline-flex;
+  flex-direction: column;
+  gap: 0.18rem;
   min-width: max-content;
   pointer-events: auto;
 }
@@ -62,6 +64,17 @@ img {
   filter: drop-shadow(0 0.42rem 1rem rgba(0, 0, 0, 0.34));
   height: clamp(3.8rem, 5.2vw, 5.2rem);
   width: auto;
+}
+
+.logo-name {
+  color: rgba(255, 253, 246, 0.94);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(0.64rem, 0.9vw, 0.78rem);
+  font-weight: 400;
+  letter-spacing: 0.38em;
+  line-height: 1;
+  padding-left: 0.38em;
+  text-shadow: 0 0.14rem 0.72rem rgba(0, 0, 0, 0.5);
 }
 
 .nav-links {
@@ -374,6 +387,11 @@ p {
 
 .site-footer .logo-image {
   filter: invert(1);
+}
+
+.site-footer .logo-name {
+  color: #1f2524;
+  text-shadow: none;
 }
 
 @media (max-width: 900px) {

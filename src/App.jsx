@@ -8,6 +8,7 @@ function Logo() {
   return (
     <a className="logo" href="#home" aria-label="zizyfuz home">
       <img className="logo-image" src="/logo-zizyfuz-mark.png" alt="" aria-hidden="true" />
+      <span className="logo-name">zizyfuz</span>
     </a>
   );
 }
