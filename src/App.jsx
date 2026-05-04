@@ -53,7 +53,7 @@ function About() {
       </div>
       <div className="about-copy">
         <p className="eyebrow">About</p>
-        <h2 id="about-title">"You must be the first audience of your own life."</h2>
+        <h2 id="about-title">"You are the first audience of your own life."</h2>
         <p>
           I lived in Chongqing, Singapore, and currently pursuing a degree in
           the UK. Photography is the channel that allows me to explore the world
