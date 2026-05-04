@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { photos } from './data/photos.js';
 
 const email = 'zizyfuz@gmail.com';
@@ -70,7 +70,23 @@ function About() {
 }
 
 function Gallery() {
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null);
+  const selectedPhoto =
+    selectedPhotoIndex === null ? null : photos[selectedPhotoIndex];
+
+  const showPreviousPhoto = () => {
+    setSelectedPhotoIndex((currentIndex) =>
+      currentIndex === null
+        ? currentIndex
+        : (currentIndex - 1 + photos.length) % photos.length
+    );
+  };
+
+  const showNextPhoto = () => {
+    setSelectedPhotoIndex((currentIndex) =>
+      currentIndex === null ? currentIndex : (currentIndex + 1) % photos.length
+    );
+  };
 
   return (
     <section className="section gallery-section" id="gallery" aria-label="Gallery">
@@ -83,7 +99,7 @@ function Gallery() {
           <button
             className={`photo-card ${photo.orientation}`}
             key={photo.slug}
-            onClick={() => setSelectedPhoto(photo)}
+            onClick={() => setSelectedPhotoIndex(index)}
             type="button"
           >
             <img
@@ -96,28 +112,76 @@ function Gallery() {
       </div>
 
       {selectedPhoto && (
-        <Lightbox photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} />
+        <Lightbox
+          photo={selectedPhoto}
+          onClose={() => setSelectedPhotoIndex(null)}
+          onNext={showNextPhoto}
+          onPrevious={showPreviousPhoto}
+        />
       )}
     </section>
   );
 }
 
-function Lightbox({ photo, onClose }) {
+function Lightbox({ photo, onClose, onNext, onPrevious }) {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+      if (event.key === 'ArrowLeft') {
+        onPrevious();
+      }
+      if (event.key === 'ArrowRight') {
+        onNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, onNext, onPrevious]);
+
   return (
     <div
       className="lightbox"
       onClick={onClose}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') {
-          onClose();
-        }
-      }}
-      role="presentation"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${photo.title} enlarged view`}
     >
       <button className="lightbox-close" onClick={onClose} type="button" aria-label="Close">
         <X size={22} aria-hidden="true" />
       </button>
-      <figure className="lightbox-frame" onClick={(event) => event.stopPropagation()}>
+      <button
+        className="lightbox-nav lightbox-nav-previous"
+        onClick={(event) => {
+          event.stopPropagation();
+          onPrevious();
+        }}
+        type="button"
+        aria-label="Previous photo"
+      >
+        <ChevronLeft size={30} aria-hidden="true" />
+      </button>
+      <button
+        className="lightbox-nav lightbox-nav-next"
+        onClick={(event) => {
+          event.stopPropagation();
+          onNext();
+        }}
+        type="button"
+        aria-label="Next photo"
+      >
+        <ChevronRight size={30} aria-hidden="true" />
+      </button>
+      <figure
+        className="lightbox-frame"
+        key={photo.slug}
+        onClick={(event) => event.stopPropagation()}
+      >
         <img src={photo.src} alt={photo.title} />
         <figcaption>
           <span>{photo.title}</span>

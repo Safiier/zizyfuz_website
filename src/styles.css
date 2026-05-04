@@ -287,6 +287,7 @@ p {
 
 .lightbox {
   align-items: center;
+  animation: lightbox-fade 220ms ease both;
   background: rgba(15, 18, 17, 0.88);
   display: flex;
   inset: 0;
@@ -310,12 +311,53 @@ p {
   right: 1rem;
   top: 1rem;
   width: 2.75rem;
+  z-index: 4;
+}
+
+.lightbox-nav {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: rgba(255, 253, 248, 0.8);
+  cursor: pointer;
+  display: flex;
+  inset-block: 0;
+  opacity: 0.42;
+  padding: clamp(1rem, 4vw, 3rem);
+  position: absolute;
+  transition:
+    background 220ms ease,
+    color 220ms ease,
+    opacity 220ms ease;
+  width: 28vw;
+  z-index: 3;
+}
+
+.lightbox-nav:hover,
+.lightbox-nav:focus-visible {
+  background: rgba(255, 253, 248, 0.06);
+  color: #fffdf8;
+  opacity: 1;
+  outline: 0;
+}
+
+.lightbox-nav-previous {
+  justify-content: flex-start;
+  left: 0;
+}
+
+.lightbox-nav-next {
+  justify-content: flex-end;
+  right: 0;
 }
 
 .lightbox-frame {
+  animation: lightbox-photo-in 260ms ease both;
   margin: 0;
   max-height: 90vh;
   max-width: min(96vw, 88rem);
+  position: relative;
+  z-index: 2;
 }
 
 .lightbox-frame img {
@@ -335,6 +377,28 @@ p {
 
 .lightbox-frame figcaption span:last-child {
   color: rgba(255, 253, 248, 0.7);
+}
+
+@keyframes lightbox-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lightbox-photo-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .contact-section {
