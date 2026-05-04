@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { photos } from './data/photos.js';
 
@@ -13,9 +13,9 @@ function Logo() {
   );
 }
 
-function Header() {
+function Header({ visible }) {
   return (
-    <header className="site-header">
+    <header className={`site-header ${visible ? '' : 'site-header-hidden'}`}>
       <nav className="nav-links" aria-label="Primary navigation">
         <div className="nav-group nav-group-left">
           <a href="#home">Home</a>
@@ -139,9 +139,26 @@ function Contact() {
 }
 
 function App() {
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+
+  useEffect(() => {
+    const updateHeaderVisibility = () => {
+      setIsHeaderVisible(window.scrollY < window.innerHeight * 0.72);
+    };
+
+    updateHeaderVisibility();
+    window.addEventListener('scroll', updateHeaderVisibility, { passive: true });
+    window.addEventListener('resize', updateHeaderVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', updateHeaderVisibility);
+      window.removeEventListener('resize', updateHeaderVisibility);
+    };
+  }, []);
+
   return (
     <>
-      <Header />
+      <Header visible={isHeaderVisible} />
       <main>
         <Home />
         <About />

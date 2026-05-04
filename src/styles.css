@@ -48,7 +48,20 @@ img {
   right: 0;
   top: 0;
   pointer-events: none;
+  transform: translateY(0);
+  transition:
+    opacity 420ms ease,
+    transform 420ms ease,
+    visibility 420ms ease;
+  opacity: 1;
+  visibility: visible;
   z-index: 20;
+}
+
+.site-header-hidden {
+  opacity: 0;
+  transform: translateY(-1rem);
+  visibility: hidden;
 }
 
 .logo {
