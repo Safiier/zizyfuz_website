@@ -59,8 +59,8 @@ img {
 }
 
 .logo-image {
-  filter: drop-shadow(0 0.5rem 1.5rem rgba(0, 0, 0, 0.3));
-  height: clamp(5rem, 7vw, 6.7rem);
+  filter: drop-shadow(0 0.42rem 1rem rgba(0, 0, 0, 0.34));
+  height: clamp(3.8rem, 5.2vw, 5.2rem);
   width: auto;
 }
 
@@ -372,6 +372,10 @@ p {
   text-align: right;
 }
 
+.site-footer .logo-image {
+  filter: invert(1);
+}
+
 @media (max-width: 900px) {
   .about-section,
   .contact-section {
@@ -394,7 +398,7 @@ p {
   }
 
   .logo-image {
-    height: 4.6rem;
+    height: 3.5rem;
   }
 
   .nav-links {

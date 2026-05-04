@@ -7,7 +7,7 @@ const email = 'zizyfuz@gmail.com';
 function Logo() {
   return (
     <a className="logo" href="#home" aria-label="zizyfuz home">
-      <img className="logo-image" src="/logo-zizyfuz.png" alt="" aria-hidden="true" />
+      <img className="logo-image" src="/logo-zizyfuz-mark.png" alt="" aria-hidden="true" />
     </a>
   );
 }
