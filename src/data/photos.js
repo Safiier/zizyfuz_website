@@ -292,6 +292,14 @@ const rawPhotos = [
     src: '/photos-web/crowned-pigeon.jpg',
     original: null,
   },
+  {
+    slug: 'teal-and-orange2',
+    title: 'Teal',
+    category: 'Wildlife',
+    orientation: 'landscape',
+    src: '/photos-web/teal-and-orange2.jpg',
+    original: null,
+  },
 ];
 
 export const photos = rawPhotos.map((photo) => ({
