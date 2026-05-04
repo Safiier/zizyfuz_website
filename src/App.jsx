@@ -15,12 +15,16 @@ function Logo() {
 function Header() {
   return (
     <header className="site-header">
-      <Logo />
       <nav className="nav-links" aria-label="Primary navigation">
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#gallery">Gallery</a>
-        <a href="#contact">Contact</a>
+        <div className="nav-group nav-group-left">
+          <a href="#home">Home</a>
+          <a href="#about">About</a>
+        </div>
+        <Logo />
+        <div className="nav-group nav-group-right">
+          <a href="#gallery">Gallery</a>
+          <a href="#contact">Contact</a>
+        </div>
       </nav>
     </header>
   );
