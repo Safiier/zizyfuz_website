@@ -276,15 +276,9 @@ p {
 }
 
 .photo-card img {
-  aspect-ratio: 4 / 3;
   height: auto;
-  object-fit: cover;
   transition: transform 380ms ease;
   width: 100%;
-}
-
-.photo-card.portrait img {
-  aspect-ratio: 3 / 4;
 }
 
 .photo-card:hover img {
