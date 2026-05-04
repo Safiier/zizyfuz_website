@@ -1,4 +1,6 @@
-export const photos = [
+const assetPath = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+
+const rawPhotos = [
   {
     slug: 'old-harry',
     title: 'Old Harry',
@@ -283,5 +285,10 @@ export const photos = [
     original: 'photos/黄山-1.jpg',
   },
 ];
+
+export const photos = rawPhotos.map((photo) => ({
+  ...photo,
+  src: assetPath(photo.src),
+}));
 
 export const categories = ['All', ...new Set(photos.map((photo) => photo.category))];
