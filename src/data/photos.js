@@ -284,6 +284,14 @@ const rawPhotos = [
     src: '/photos-web/huangshan.jpg',
     original: 'photos/黄山-1.jpg',
   },
+  {
+    slug: 'crowned-pigeon',
+    title: 'Crowned Pigeon',
+    category: 'Wildlife',
+    orientation: 'landscape',
+    src: '/photos-web/crowned-pigeon.jpg',
+    original: null,
+  },
 ];
 
 export const photos = rawPhotos.map((photo) => ({
