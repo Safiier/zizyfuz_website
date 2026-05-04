@@ -67,12 +67,9 @@ function Gallery() {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   return (
-    <section className="section gallery-section" id="gallery" aria-labelledby="gallery-title">
+    <section className="section gallery-section" id="gallery" aria-label="Gallery">
       <div className="section-heading">
-        <div>
-          <p className="eyebrow">Gallery</p>
-          <h2 id="gallery-title">Some of my favorite images</h2>
-        </div>
+        <p className="eyebrow">Gallery</p>
       </div>
 
       <div className="photo-grid">
@@ -88,10 +85,6 @@ function Gallery() {
               alt={photo.title}
               loading={index < 6 ? 'eager' : 'lazy'}
             />
-            <span className="photo-meta">
-              <span>{photo.title}</span>
-              <span>{photo.category}</span>
-            </span>
           </button>
         ))}
       </div>
