@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowUpRight, Mail, Plus, X } from 'lucide-react';
+import { Mail, Plus, X } from 'lucide-react';
 import { categories, photos } from './data/photos.js';
 
 const email = 'hello@zizyfuz.com';
@@ -7,8 +7,7 @@ const email = 'hello@zizyfuz.com';
 function Logo() {
   return (
     <a className="logo" href="#home" aria-label="zizyfuz home">
-      <span className="logo-mark">zf</span>
-      <span className="logo-word">zizyfuz</span>
+      <img className="logo-image" src="/logo-zizyfuz.png" alt="" aria-hidden="true" />
     </a>
   );
 }
@@ -28,24 +27,12 @@ function Header() {
 }
 
 function Home() {
-  const featured = photos.find((photo) => photo.featured) ?? photos[0];
+  const heroPhoto = photos.find((photo) => photo.slug === 'bipenggou-11') ?? photos[0];
 
   return (
-    <section className="hero" id="home" aria-labelledby="hero-title">
+    <section className="hero" id="home" aria-label="zizyfuz photography home">
       <div className="hero-image-wrap">
-        <img className="hero-image" src={featured.src} alt={featured.title} />
-      </div>
-      <div className="hero-copy">
-        <p className="eyebrow">Photography portfolio</p>
-        <h1 id="hero-title">zizyfuz</h1>
-        <p>
-          Quiet landscapes, watchful wildlife, coastal light, and city fragments
-          collected with a calm eye.
-        </p>
-        <a className="text-link" href="#gallery">
-          View gallery
-          <ArrowUpRight aria-hidden="true" size={18} />
-        </a>
+        <img className="hero-image" src={heroPhoto.src} alt={heroPhoto.title} />
       </div>
     </section>
   );
@@ -195,7 +182,7 @@ function App() {
       </main>
       <footer className="site-footer">
         <Logo />
-        <p>© 2026 zizyfuz. All photographs reserved.</p>
+        <p>(c) 2026 zizyfuz. All photographs reserved.</p>
       </footer>
     </>
   );
