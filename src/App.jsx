@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
-import { Mail, Plus, X } from 'lucide-react';
-import { categories, photos } from './data/photos.js';
+import { useState } from 'react';
+import { X } from 'lucide-react';
+import { photos } from './data/photos.js';
 
-const email = 'hello@zizyfuz.com';
+const email = 'zizyfuz@gmail.com';
 
 function Logo() {
   return (
@@ -64,42 +64,19 @@ function About() {
 }
 
 function Gallery() {
-  const [activeCategory, setActiveCategory] = useState('All');
   const [selectedPhoto, setSelectedPhoto] = useState(null);
-
-  const visiblePhotos = useMemo(() => {
-    if (activeCategory === 'All') {
-      return photos;
-    }
-
-    return photos.filter((photo) => photo.category === activeCategory);
-  }, [activeCategory]);
 
   return (
     <section className="section gallery-section" id="gallery" aria-labelledby="gallery-title">
       <div className="section-heading">
         <div>
           <p className="eyebrow">Gallery</p>
-          <h2 id="gallery-title">Selected photographs</h2>
+          <h2 id="gallery-title">Some of my favorite images</h2>
         </div>
-        <p>{visiblePhotos.length} frames</p>
-      </div>
-
-      <div className="category-tabs" aria-label="Filter gallery by category">
-        {categories.map((category) => (
-          <button
-            className={category === activeCategory ? 'active' : ''}
-            key={category}
-            onClick={() => setActiveCategory(category)}
-            type="button"
-          >
-            {category}
-          </button>
-        ))}
       </div>
 
       <div className="photo-grid">
-        {visiblePhotos.map((photo, index) => (
+        {photos.map((photo, index) => (
           <button
             className={`photo-card ${photo.orientation}`}
             key={photo.slug}
@@ -154,19 +131,13 @@ function Lightbox({ photo, onClose }) {
 
 function Contact() {
   return (
-    <section className="section contact-section" id="contact" aria-labelledby="contact-title">
-      <div>
-        <p className="eyebrow">Contact</p>
-        <h2 id="contact-title">For prints, projects, or future updates.</h2>
-      </div>
+    <section className="section contact-section" id="contact" aria-label="Contact">
       <div className="contact-panel">
-        <a className="email-link" href={`mailto:${email}`}>
-          <Mail size={20} aria-hidden="true" />
-          {email}
-        </a>
-        <div className="update-note">
-          <Plus size={18} aria-hidden="true" />
-          <span>Add future photographs through the photo manifest.</span>
+        <p className="eyebrow">Contact</p>
+        <a className="email-link" href={`mailto:${email}`}>{email}</a>
+        <div className="social-links" aria-label="Social media links">
+          <a href="#" aria-label="Instagram placeholder">Instagram</a>
+          <a href="#" aria-label="Xiaohongshu placeholder">Xiaohongshu</a>
         </div>
       </div>
     </section>

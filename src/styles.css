@@ -101,9 +101,13 @@ img {
 }
 
 .nav-links a:hover,
-.text-link:hover,
-.email-link:hover {
+.text-link:hover {
   color: #ffffff;
+}
+
+.email-link:hover,
+.social-links a:hover {
+  color: #0e6258;
 }
 
 .hero {
@@ -221,40 +225,15 @@ p {
 }
 
 .section-heading {
-  align-items: end;
-  display: flex;
-  gap: 1.5rem;
-  justify-content: space-between;
+  margin-bottom: clamp(1.8rem, 4vw, 3rem);
 }
 
-.section-heading > p {
-  color: #7b817d;
-  margin: 0 0 0.55rem;
-  min-width: max-content;
-}
-
-.category-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin: 2rem 0;
-}
-
-.category-tabs button {
-  background: transparent;
-  border: 1px solid rgba(31, 37, 36, 0.16);
-  border-radius: 999px;
-  color: #59605d;
-  cursor: pointer;
-  min-height: 2.35rem;
-  padding: 0 1rem;
-}
-
-.category-tabs button.active,
-.category-tabs button:hover {
-  background: #1f2524;
-  border-color: #1f2524;
-  color: #fbfaf7;
+.gallery-section h2 {
+  color: #1f2524;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.05rem, 1.7vw, 1.45rem);
+  font-weight: 400;
+  line-height: 1.35;
 }
 
 .photo-grid {
@@ -376,31 +355,42 @@ p {
   color: rgba(255, 253, 248, 0.7);
 }
 
-.contact-panel {
-  align-self: start;
-  border-top: 1px solid rgba(31, 37, 36, 0.14);
-  padding-top: 1.25rem;
+.contact-section {
+  display: block;
+  min-height: 42vh;
 }
 
-.email-link,
-.update-note {
-  align-items: center;
-  display: flex;
-  gap: 0.75rem;
+.contact-panel {
+  border-top: 1px solid rgba(31, 37, 36, 0.14);
+  margin-left: auto;
+  max-width: 46rem;
+  padding-top: clamp(1.4rem, 3vw, 2.2rem);
 }
 
 .email-link {
   color: #1f2524;
-  font-size: clamp(1.3rem, 3vw, 2.25rem);
-  font-weight: 650;
+  display: inline-block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 5vw, 5rem);
+  font-weight: 400;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
-.update-note {
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-top: clamp(1.2rem, 2vw, 1.8rem);
+}
+
+.social-links a {
   color: #7b817d;
-  font-size: 0.95rem;
-  margin-top: 1rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.24em;
+  padding-left: 0.24em;
+  text-transform: uppercase;
 }
 
 .site-footer {
