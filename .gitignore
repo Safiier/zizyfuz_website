@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.log
+
+# Keep original full-size photography files local.
+# The website uses optimized copies from public/photos-web.
+photos/
