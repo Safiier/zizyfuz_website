@@ -6,6 +6,7 @@ const root = dirname(fileURLToPath(import.meta.url));
 const distRoot = join(root, '..', 'dist');
 const siteUrl = 'https://zizyfuz.com';
 const photographyUrl = `${siteUrl}/photography/`;
+const bingVerification = '2607DE50489C05C64A29BF239D980170';
 
 await mkdir(distRoot, { recursive: true });
 
@@ -42,6 +43,7 @@ await writeFile(
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="refresh" content="0; url=/photography/" />
     <title>zizyfuz</title>
+    <meta name="msvalidate.01" content="${bingVerification}" />
     <link rel="canonical" href="${photographyUrl}" />
   </head>
   <body>
