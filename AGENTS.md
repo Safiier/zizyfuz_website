@@ -33,6 +33,7 @@ rm -rf
 - 作者 / 摄影师名称：`zizyfuz`
 - 远程仓库：`https://github.com/Safiier/zizyfuz_website.git`
 - GitHub Pages 地址：`https://safiier.github.io/zizyfuz_website/`
+- 自定义域名：`https://zizyfuz.com/photography/`
 - 部署方式：GitHub Actions workflow 构建并部署到 GitHub Pages
 
 主要功能：
@@ -117,7 +118,8 @@ Xiaohongshu
 - `public/logo_zizyfuz/`：用户准备的 logo 源文件。
 - `public/logo-zizyfuz-mark.png`：当前网站实际使用的透明 logo mark。
 - `.github/workflows/deploy.yml`：GitHub Pages 自动部署 workflow。
-- `vite.config.js`：Vite 配置。当前 `base: './'` 对 GitHub Pages 项目路径和未来自定义域名都很重要，不要随意改掉。
+- `vite.config.js`：Vite 配置。当前 `base: '/photography/'` 且构建输出到 `dist/photography`，用于让摄影站运行在 `zizyfuz.com/photography/` 下，不要随意改掉。
+- `tools/prepare-pages.mjs`：构建后生成 GitHub Pages 自定义域名所需的 `dist/CNAME`，并在 `dist/index.html` 放一个临时跳转到 `/photography/` 的首页。
 
 ## 照片更新流程
 
