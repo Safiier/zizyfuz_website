@@ -42,7 +42,7 @@ function Home() {
   return (
     <section className="hero" id="home" aria-label="zizyfuz photography home">
       <div className="hero-image-wrap">
-        <img className="hero-image" src={heroPhoto.src} alt={heroPhoto.title} />
+        <img className="hero-image" src={heroPhoto.src} alt={heroPhoto.alt ?? heroPhoto.title} />
       </div>
     </section>
   );
@@ -54,7 +54,7 @@ function About() {
   return (
     <section className="section about-section" id="about" aria-labelledby="about-title">
       <div className="about-image-frame">
-        <img src={aboutPhoto.src} alt={aboutPhoto.title} />
+        <img src={aboutPhoto.src} alt={aboutPhoto.alt ?? aboutPhoto.title} />
       </div>
       <div className="about-copy">
         <p className="eyebrow">About</p>
@@ -104,7 +104,7 @@ function Gallery() {
           >
             <img
               src={photo.src}
-              alt={photo.title}
+              alt={photo.alt ?? photo.title}
               loading={index < 6 ? 'eager' : 'lazy'}
             />
           </button>
@@ -182,11 +182,7 @@ function Lightbox({ photo, onClose, onNext, onPrevious }) {
         key={photo.slug}
         onClick={(event) => event.stopPropagation()}
       >
-        <img src={photo.src} alt={photo.title} />
-        <figcaption>
-          <span>{photo.title}</span>
-          <span>{photo.category}</span>
-        </figcaption>
+        <img src={photo.src} alt={photo.alt ?? photo.title} />
       </figure>
     </div>
   );

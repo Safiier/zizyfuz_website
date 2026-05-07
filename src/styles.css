@@ -362,21 +362,9 @@ p {
 
 .lightbox-frame img {
   border-radius: 0.3rem;
-  max-height: 84vh;
+  max-height: 90vh;
   object-fit: contain;
   width: 100%;
-}
-
-.lightbox-frame figcaption {
-  color: #fffdf8;
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-  padding-top: 0.8rem;
-}
-
-.lightbox-frame figcaption span:last-child {
-  color: rgba(255, 253, 248, 0.7);
 }
 
 @keyframes lightbox-fade {
