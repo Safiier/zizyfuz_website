@@ -199,8 +199,8 @@ function Contact() {
         <p className="eyebrow">Contact</p>
         <a className="email-link" href={`mailto:${email}`}>{email}</a>
         <div className="social-links" aria-label="Social media links">
-          <a href="#" aria-label="Instagram placeholder">Instagram</a>
-          <a href="#" aria-label="Xiaohongshu placeholder">Xiaohongshu</a>
+          <a href="https://www.instagram.com/zizyfuzfoto?igsh=YTB0ZDBoZHlpMGQ%3D&utm_source=qr">Instagram</a>
+          <a href="https://xhslink.com/m/2RsUq7tFlJr">Xiaohongshu</a>
         </div>
       </div>
     </section>
