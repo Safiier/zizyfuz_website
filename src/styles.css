@@ -260,7 +260,8 @@ p {
 }
 
 .photo-card {
-  background: transparent;
+  aspect-ratio: var(--photo-aspect-ratio);
+  background: #f0eee8;
   border: 0;
   border-radius: 0.35rem;
   break-inside: avoid;
@@ -276,7 +277,8 @@ p {
 }
 
 .photo-card img {
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   transition: transform 380ms ease;
   width: 100%;
 }

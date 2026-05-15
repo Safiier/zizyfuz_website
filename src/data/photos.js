@@ -9,6 +9,8 @@ const rawPhotos = [
     orientation: 'landscape',
     featured: true,
     src: '/photos-web/old-harry.jpg',
+    width: 2200,
+    height: 1117,
     original: 'photos/Old Harry.jpg',
   },
   {
@@ -19,6 +21,8 @@ const rawPhotos = [
     orientation: 'landscape',
     featured: true,
     src: '/photos-web/dawn-tree-end.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/DawnTreeend.jpg',
   },
   {
@@ -29,6 +33,8 @@ const rawPhotos = [
     orientation: 'landscape',
     featured: true,
     src: '/photos-web/chongqing-14.jpg',
+    width: 2200,
+    height: 1237,
     original: 'photos/重庆-14.jpg',
   },
   {
@@ -38,6 +44,8 @@ const rawPhotos = [
     alt: 'Beachy Head Lighthouse below white cliffs on the English coast',
     orientation: 'landscape',
     src: '/photos-web/beachy-lighthouse.jpg',
+    width: 2200,
+    height: 1650,
     original: 'photos/beachy lighthouse.jpg',
   },
   {
@@ -47,6 +55,8 @@ const rawPhotos = [
     alt: 'A small buoy on calm water beneath pastel clouds and distant ships',
     orientation: 'portrait',
     src: '/photos-web/buoy.jpg',
+    width: 1467,
+    height: 2200,
     original: 'photos/Buoy.jpg',
   },
   {
@@ -56,6 +66,8 @@ const rawPhotos = [
     alt: 'Close portrait of a channel-billed toucan with a blue face and yellow chest',
     orientation: 'landscape',
     src: '/photos-web/channel-billed-toucan.jpg',
+    width: 2200,
+    height: 1467,
     original: 'photos/Channel-billed Toucan.jpg',
   },
   {
@@ -65,6 +77,8 @@ const rawPhotos = [
     alt: 'A rock climber in a red shirt scaling a steep grey cliff face',
     orientation: 'landscape',
     src: '/photos-web/climber-two.jpg',
+    width: 2200,
+    height: 1467,
     original: 'photos/Climber2.jpg',
   },
   {
@@ -74,6 +88,8 @@ const rawPhotos = [
     alt: 'A couple walking away across a green hillside under a clear sky',
     orientation: 'landscape',
     src: '/photos-web/couple.jpg',
+    width: 2200,
+    height: 1018,
     original: 'photos/Couple.jpg',
   },
   {
@@ -83,6 +99,8 @@ const rawPhotos = [
     alt: 'Two people walking on a grassy hill above sheep near the Seven Sisters coast',
     orientation: 'landscape',
     src: '/photos-web/couple-seven-sisters.jpg',
+    width: 2200,
+    height: 1650,
     original: 'photos/couple_sevensisters.jpg',
   },
   {
@@ -92,6 +110,8 @@ const rawPhotos = [
     alt: 'Horses grazing in a blue and violet meadow mist at dawn',
     orientation: 'landscape',
     src: '/photos-web/dawn-meadow.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/DawnMeadow.jpg',
   },
   {
@@ -101,6 +121,8 @@ const rawPhotos = [
     alt: 'A small sailboat crossing a grey misty sea with a nearly empty horizon',
     orientation: 'landscape',
     src: '/photos-web/death-water.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/deatwater.jpg',
   },
   {
@@ -110,6 +132,8 @@ const rawPhotos = [
     alt: 'A green tree python coiled around a branch with its head raised',
     orientation: 'landscape',
     src: '/photos-web/green-tree-python.jpg',
+    width: 2200,
+    height: 1467,
     original: 'photos/Green Tree Python.jpg',
   },
   {
@@ -119,6 +143,8 @@ const rawPhotos = [
     alt: 'A camouflaged snake coiled on pale sand and dry leaves',
     orientation: 'landscape',
     src: '/photos-web/hebi.jpg',
+    width: 2200,
+    height: 1467,
     original: 'photos/hebi.jpg',
   },
   {
@@ -128,6 +154,8 @@ const rawPhotos = [
     alt: 'A jandaya parakeet with orange, yellow, and green feathers perched on a branch',
     orientation: 'portrait',
     src: '/photos-web/jandaya-parakeet.jpg',
+    width: 1467,
+    height: 2200,
     original: 'photos/Jandaya Parakeet.jpg',
   },
   {
@@ -137,6 +165,8 @@ const rawPhotos = [
     alt: 'Flowering tree branches glowing under a warm streetlight at night',
     orientation: 'landscape',
     src: '/photos-web/night-leaf.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/nightleaf.jpg',
   },
   {
@@ -146,6 +176,8 @@ const rawPhotos = [
     alt: 'A painted stork spreading black and white wings against dark foliage',
     orientation: 'landscape',
     src: '/photos-web/painted-stork.jpg',
+    width: 2200,
+    height: 1467,
     original: 'photos/Painted Stork Up.jpg',
   },
   {
@@ -155,6 +187,8 @@ const rawPhotos = [
     alt: 'A small dog running across wet sand beside gentle sea waves',
     orientation: 'landscape',
     src: '/photos-web/sea-dog.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/seadog.jpg',
   },
   {
@@ -164,6 +198,8 @@ const rawPhotos = [
     alt: 'A school crossing sign beneath flowering trees lit by streetlights at night',
     orientation: 'landscape',
     src: '/photos-web/sign.jpg',
+    width: 2200,
+    height: 1467,
     original: 'photos/sign.jpg',
   },
   {
@@ -173,6 +209,8 @@ const rawPhotos = [
     alt: 'Clouds drifting across a green mountain valley under a bright blue sky',
     orientation: 'landscape',
     src: '/photos-web/zelda.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/zelda.png',
   },
   {
@@ -182,6 +220,8 @@ const rawPhotos = [
     alt: 'A waterfall flowing through forest with mountains behind it in Jiuzhaigou',
     orientation: 'portrait',
     src: '/photos-web/jiuzhaigou.jpg',
+    width: 1902,
+    height: 2200,
     original: 'photos/九寨沟 (1 - 1).jpg',
   },
   {
@@ -191,6 +231,8 @@ const rawPhotos = [
     alt: 'Chongsheng Temple roof overlooking Dali, Erhai Lake, and distant mountains',
     orientation: 'landscape',
     src: '/photos-web/chongsheng-temple.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/崇圣寺-2.jpg',
   },
   {
@@ -200,6 +242,8 @@ const rawPhotos = [
     alt: 'A squirrel eating among mossy tree branches in a soft forest scene',
     orientation: 'landscape',
     src: '/photos-web/squirrel.jpg',
+    width: 2200,
+    height: 1760,
     original: 'photos/松鼠-1.jpg',
   },
   {
@@ -209,6 +253,8 @@ const rawPhotos = [
     alt: 'Snow-dusted forest and rocky stream bank in Bipenggou',
     orientation: 'landscape',
     src: '/photos-web/bipenggou-10.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/毕棚沟 (10 - 1).jpg',
   },
   {
@@ -218,6 +264,8 @@ const rawPhotos = [
     alt: 'A snowy forest with soft sunlight through frost-covered branches in Bipenggou',
     orientation: 'landscape',
     src: '/photos-web/bipenggou-11.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/毕棚沟 (11 - 1).jpg',
   },
   {
@@ -227,6 +275,8 @@ const rawPhotos = [
     alt: 'Snowy tree branches and winter forest light in Bipenggou',
     orientation: 'landscape',
     src: '/photos-web/bipenggou-12.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/毕棚沟 (12 - 1).jpg',
   },
   {
@@ -236,6 +286,8 @@ const rawPhotos = [
     alt: 'An elderly couple walking together along a seaside pier',
     orientation: 'landscape',
     src: '/photos-web/elderly-couple.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/老夫妇.jpg',
   },
   {
@@ -245,6 +297,8 @@ const rawPhotos = [
     alt: 'A Chongqing monorail passing through red bridge structures in warm light',
     orientation: 'landscape',
     src: '/photos-web/chongqing-10.jpg',
+    width: 2200,
+    height: 1467,
     original: 'photos/重庆-10.jpg',
   },
   {
@@ -254,6 +308,8 @@ const rawPhotos = [
     alt: 'Chongqing apartment towers framed by dark bridge beams and red steel',
     orientation: 'landscape',
     src: '/photos-web/chongqing-11.jpg',
+    width: 2200,
+    height: 1467,
     original: 'photos/重庆-11.jpg',
   },
   {
@@ -263,6 +319,8 @@ const rawPhotos = [
     alt: 'People silhouetted beside colorful city lights reflected on water in Chongqing',
     orientation: 'landscape',
     src: '/photos-web/chongqing-12.jpg',
+    width: 2200,
+    height: 1237,
     original: 'photos/重庆-12.jpg',
   },
   {
@@ -272,6 +330,8 @@ const rawPhotos = [
     alt: 'A bird silhouette standing in Chongqing river reflections at night',
     orientation: 'landscape',
     src: '/photos-web/chongqing-13.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/重庆-13.jpg',
   },
   {
@@ -281,6 +341,8 @@ const rawPhotos = [
     alt: 'An old Chongqing building seen through a dark construction passage',
     orientation: 'landscape',
     src: '/photos-web/chongqing-5.jpg',
+    width: 2200,
+    height: 1571,
     original: 'photos/重庆-5.jpg',
   },
   {
@@ -290,6 +352,8 @@ const rawPhotos = [
     alt: 'Dense Chongqing residential towers with a curving road between them',
     orientation: 'landscape',
     src: '/photos-web/chongqing-6.jpg',
+    width: 2200,
+    height: 1467,
     original: 'photos/重庆-6.jpg',
   },
   {
@@ -299,6 +363,8 @@ const rawPhotos = [
     alt: 'A boat crossing the Chongqing river through golden ripples at sunset',
     orientation: 'landscape',
     src: '/photos-web/chongqing-7.jpg',
+    width: 2200,
+    height: 1524,
     original: 'photos/重庆-7.jpg',
   },
   {
@@ -308,6 +374,8 @@ const rawPhotos = [
     alt: 'Golden Chongqing skyline and river viewed from behind a dark unfinished building',
     orientation: 'landscape',
     src: '/photos-web/chongqing-9.jpg',
+    width: 2200,
+    height: 1506,
     original: 'photos/重庆-9.jpg',
   },
   {
@@ -317,6 +385,8 @@ const rawPhotos = [
     alt: 'Layered Huangshan mountain silhouettes framed by pine branches in black and white',
     orientation: 'landscape',
     src: '/photos-web/huangshan.jpg',
+    width: 2200,
+    height: 1238,
     original: 'photos/黄山-1.jpg',
   },
   {
@@ -326,6 +396,8 @@ const rawPhotos = [
     alt: 'Close portrait of a crowned pigeon with lacy feathers and a red eye',
     orientation: 'landscape',
     src: '/photos-web/crowned-pigeon.jpg',
+    width: 2200,
+    height: 1467,
     original: null,
   },
   {
@@ -335,6 +407,8 @@ const rawPhotos = [
     alt: 'An orange and green parakeet perched on a branch against a dark leafy background',
     orientation: 'landscape',
     src: '/photos-web/teal-and-orange2.jpg',
+    width: 2200,
+    height: 1467,
     original: null,
   },
 ];

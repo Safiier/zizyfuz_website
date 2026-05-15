@@ -100,11 +100,14 @@ function Gallery() {
             className={`photo-card ${photo.orientation}`}
             key={photo.slug}
             onClick={() => setSelectedPhotoIndex(index)}
+            style={{ '--photo-aspect-ratio': `${photo.width} / ${photo.height}` }}
             type="button"
           >
             <img
               src={photo.src}
               alt={photo.alt ?? photo.title}
+              width={photo.width}
+              height={photo.height}
               loading={index < 6 ? 'eager' : 'lazy'}
             />
           </button>
