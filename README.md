@@ -20,6 +20,27 @@ Windows npm path:
 
 Then open the local URL printed by Vite.
 
+## Website analytics
+
+The site supports Google Analytics 4 through the `VITE_GA_MEASUREMENT_ID`
+environment variable. The value looks like `G-XXXXXXXXXX`.
+
+For local testing, copy `.env.example` to `.env.local`, replace the example ID
+with the real GA4 Measurement ID, then run the dev server or build command.
+The `.env.local` file is ignored by Git, so it stays on your computer.
+
+For the live GitHub Pages site, add a GitHub repository variable:
+
+1. Open the GitHub repository.
+2. Go to `Settings > Secrets and variables > Actions > Variables`.
+3. Add a variable named `GA_MEASUREMENT_ID`.
+4. Set its value to the GA4 Measurement ID, for example `G-XXXXXXXXXX`.
+5. Push to `main` or manually run the deploy workflow.
+
+Use Google Analytics to view page views, traffic sources, devices, and visitor
+countries or regions. Use Google Search Console for Google search clicks,
+impressions, search queries, and country-level search performance.
+
 ## Add future photos
 
 1. Put the new original photo in `photos`.
