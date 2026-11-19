@@ -1,10 +1,20 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { photos } from './data/photos.js';
+import { heroPhotos, photos } from './data/photos.js';
 
 const email = 'zizyfuz@gmail.com';
 
 const gallerySizes = '(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw';
+const heroInterval = 6500;
+const swipeThreshold = 45;
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// "Huangshan in Haze · Huangshan, Anhui · 2026"
+const photoCaption = (photo) =>
+  [photo.title, photo.place, photo.year].filter(Boolean).join(' · ');
 
 // Number of masonry columns for the current screen width.
 function useColumnCount() {
@@ -44,6 +54,38 @@ function distributeIntoColumns(items, columnCount) {
   return columns;
 }
 
+// Horizontal swipe detection for touch screens. Returns handlers to spread on
+// an element and a ref that is true right after a swipe (to ignore the click
+// that some browsers fire at the end of the gesture).
+function useSwipe(onSwipeLeft, onSwipeRight) {
+  const start = useRef(null);
+  const justSwiped = useRef(false);
+
+  const onTouchStart = (event) => {
+    const touch = event.touches[0];
+    start.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const onTouchEnd = (event) => {
+    if (!start.current) return;
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - start.current.x;
+    const dy = touch.clientY - start.current.y;
+    start.current = null;
+
+    if (Math.abs(dx) > swipeThreshold && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      justSwiped.current = true;
+      window.setTimeout(() => {
+        justSwiped.current = false;
+      }, 450);
+      if (dx < 0) onSwipeLeft();
+      else onSwipeRight();
+    }
+  };
+
+  return { handlers: { onTouchStart, onTouchEnd }, justSwiped };
+}
+
 function Logo() {
   return (
     <a className="logo" href="#home" aria-label="zizyfuz home">
@@ -58,9 +100,56 @@ function Logo() {
   );
 }
 
-function Header({ visible }) {
+// Header modes:
+// - "hero": large transparent navigation over the home slideshow
+// - "compact": slim light bar that slides in when the visitor scrolls up
+// - "hidden": scrolled down past the hero
+function useHeaderMode() {
+  const [mode, setMode] = useState('hero');
+
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY;
+      const heroLimit = window.innerHeight * 0.72;
+
+      if (y < heroLimit) {
+        setMode('hero');
+      } else if (y < lastY - 4) {
+        setMode('compact');
+      } else if (y > lastY + 4) {
+        setMode('hidden');
+      }
+      lastY = y;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(update);
+      }
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+
+  return mode;
+}
+
+function Header() {
+  const mode = useHeaderMode();
+
   return (
-    <header className={`site-header ${visible ? '' : 'site-header-hidden'}`}>
+    <header className={`site-header site-header-${mode}`}>
       <nav className="nav-links" aria-label="Primary navigation">
         <div className="nav-group nav-group-left">
           <a href="#home">Home</a>
@@ -77,20 +166,107 @@ function Header({ visible }) {
 }
 
 function Home() {
-  const heroPhoto = photos.find((photo) => photo.slug === 'bipenggou-11') ?? photos[0];
+  const slides = heroPhotos.length ? heroPhotos : [photos[0]];
+  const count = slides.length;
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const previousPositions = useRef([]);
+
+  const goTo = useCallback((next) => setIndex(((next % count) + count) % count), [count]);
+  const next = useCallback(() => setIndex((i) => (i + 1) % count), [count]);
+  const previous = useCallback(() => setIndex((i) => (i - 1 + count) % count), [count]);
+  const { handlers } = useSwipe(next, previous);
+
+  // Auto-advance, unless paused, reduced motion, or the tab is hidden.
+  useEffect(() => {
+    if (count < 2 || paused || prefersReducedMotion()) return undefined;
+    const timer = window.setInterval(() => {
+      if (!document.hidden) next();
+    }, heroInterval);
+    return () => window.clearInterval(timer);
+  }, [count, paused, next, index]);
+
+  // Each slide sits at a horizontal position relative to the current one:
+  // -1 = just left, 0 = on screen, 1.. = to the right. Slides that wrap from
+  // one end to the other jump without animating, so they never sweep across.
+  const positions = slides.map((_, i) => ((i - index + count + 1) % count) - 1);
+  const lastPositions = previousPositions.current;
+  useEffect(() => {
+    previousPositions.current = positions;
+  });
 
   return (
-    <section className="hero" id="home" aria-label="zizyfuz photography home">
-      <div className="hero-image-wrap">
-        <img
-          className="hero-image"
-          src={heroPhoto.src}
-          srcSet={heroPhoto.srcSet}
-          sizes="100vw"
-          alt={heroPhoto.alt ?? heroPhoto.title}
-          fetchPriority="high"
-        />
+    <section
+      className="hero"
+      id="home"
+      aria-label="zizyfuz photography home"
+      aria-roledescription="carousel"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      {...handlers}
+    >
+      <div className="hero-track">
+        {slides.map((photo, i) => {
+          const position = positions[i];
+          const jumped =
+            lastPositions[i] !== undefined && Math.abs(lastPositions[i] - position) > 1;
+          return (
+            <div
+              className={`hero-slide ${jumped ? 'hero-slide-jump' : ''}`}
+              key={photo.slug}
+              style={{ transform: `translate3d(${position * 100}%, 0, 0)` }}
+              aria-hidden={position !== 0}
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`${i + 1} of ${count}`}
+            >
+              <img
+                className="hero-image"
+                src={photo.src}
+                srcSet={photo.srcSet}
+                sizes="(max-aspect-ratio: 16/9) 178vh, 100vw"
+                alt={photo.alt ?? photo.title}
+                fetchPriority={i === 0 ? 'high' : 'low'}
+                decoding={i === 0 ? 'sync' : 'async'}
+              />
+            </div>
+          );
+        })}
       </div>
+
+      {count > 1 && (
+        <>
+          <button
+            className="hero-arrow hero-arrow-previous"
+            onClick={previous}
+            type="button"
+            aria-label="Previous photo"
+          >
+            <ChevronLeft size={30} strokeWidth={1.25} aria-hidden="true" />
+          </button>
+          <button
+            className="hero-arrow hero-arrow-next"
+            onClick={next}
+            type="button"
+            aria-label="Next photo"
+          >
+            <ChevronRight size={30} strokeWidth={1.25} aria-hidden="true" />
+          </button>
+          <div className="hero-dots" role="tablist" aria-label="Choose photo">
+            {slides.map((photo, i) => (
+              <button
+                key={photo.slug}
+                className={`hero-dot ${i === index ? 'hero-dot-active' : ''}`}
+                onClick={() => goTo(i)}
+                type="button"
+                role="tab"
+                aria-selected={i === index}
+                aria-label={photo.title}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 }
@@ -133,19 +309,21 @@ function Gallery() {
   const selectedPhoto =
     selectedPhotoIndex === null ? null : photos[selectedPhotoIndex];
 
-  const showPreviousPhoto = () => {
+  const showPreviousPhoto = useCallback(() => {
     setSelectedPhotoIndex((currentIndex) =>
       currentIndex === null
         ? currentIndex
         : (currentIndex - 1 + photos.length) % photos.length
     );
-  };
+  }, []);
 
-  const showNextPhoto = () => {
+  const showNextPhoto = useCallback(() => {
     setSelectedPhotoIndex((currentIndex) =>
       currentIndex === null ? currentIndex : (currentIndex + 1) % photos.length
     );
-  };
+  }, []);
+
+  const closeLightbox = useCallback(() => setSelectedPhotoIndex(null), []);
 
   return (
     <section className="section gallery-section" id="gallery" aria-label="Gallery">
@@ -183,8 +361,9 @@ function Gallery() {
 
       {selectedPhoto && (
         <Lightbox
+          index={selectedPhotoIndex}
           photo={selectedPhoto}
-          onClose={() => setSelectedPhotoIndex(null)}
+          onClose={closeLightbox}
           onNext={showNextPhoto}
           onPrevious={showPreviousPhoto}
         />
@@ -193,44 +372,63 @@ function Gallery() {
   );
 }
 
-function Lightbox({ photo, onClose, onNext, onPrevious }) {
+// Quietly download the neighbouring photos so arrows and swipes feel instant.
+function preloadPhoto(photo) {
+  if (!photo) return;
+  const image = new Image();
+  image.sizes = '96vw';
+  image.srcset = photo.srcSet;
+  image.src = photo.src;
+}
+
+function Lightbox({ index, photo, onClose, onNext, onPrevious }) {
+  const { handlers, justSwiped } = useSwipe(onNext, onPrevious);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-      if (event.key === 'ArrowLeft') {
-        onPrevious();
-      }
-      if (event.key === 'ArrowRight') {
-        onNext();
-      }
+      if (event.key === 'Escape') onClose();
+      if (event.key === 'ArrowLeft') onPrevious();
+      if (event.key === 'ArrowRight') onNext();
     };
 
     window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrevious]);
+
+  // Stop the page behind from scrolling while the lightbox is open.
+  useEffect(() => {
+    const { overflow } = document.body.style;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = overflow;
+    };
+  }, []);
+
+  useEffect(() => {
+    preloadPhoto(photos[(index + 1) % photos.length]);
+    preloadPhoto(photos[(index - 1 + photos.length) % photos.length]);
+  }, [index]);
+
+  const ignoreIfSwiped = (action) => (event) => {
+    event.stopPropagation();
+    if (!justSwiped.current) action();
+  };
 
   return (
     <div
       className="lightbox"
-      onClick={onClose}
+      onClick={ignoreIfSwiped(onClose)}
       role="dialog"
       aria-modal="true"
       aria-label={`${photo.title} enlarged view`}
+      {...handlers}
     >
-      <button className="lightbox-close" onClick={onClose} type="button" aria-label="Close">
+      <button className="lightbox-close" onClick={ignoreIfSwiped(onClose)} type="button" aria-label="Close">
         <X size={22} aria-hidden="true" />
       </button>
       <button
         className="lightbox-nav lightbox-nav-previous"
-        onClick={(event) => {
-          event.stopPropagation();
-          onPrevious();
-        }}
+        onClick={ignoreIfSwiped(onPrevious)}
         type="button"
         aria-label="Previous photo"
       >
@@ -238,10 +436,7 @@ function Lightbox({ photo, onClose, onNext, onPrevious }) {
       </button>
       <button
         className="lightbox-nav lightbox-nav-next"
-        onClick={(event) => {
-          event.stopPropagation();
-          onNext();
-        }}
+        onClick={ignoreIfSwiped(onNext)}
         type="button"
         aria-label="Next photo"
       >
@@ -258,6 +453,7 @@ function Lightbox({ photo, onClose, onNext, onPrevious }) {
           sizes="96vw"
           alt={photo.alt ?? photo.title}
         />
+        <figcaption className="lightbox-caption">{photoCaption(photo)}</figcaption>
       </figure>
     </div>
   );
@@ -270,7 +466,7 @@ function Contact() {
         <p className="eyebrow">Contact</p>
         <a className="email-link" href={`mailto:${email}`}>{email}</a>
         <div className="social-links" aria-label="Social media links">
-          <a href="https://www.instagram.com/zizyfuzfoto?igsh=YTB0ZDBoZHlpMGQ%3D&utm_source=qr">Instagram</a>
+          <a href="https://www.instagram.com/zizyfuzfoto">Instagram</a>
           <a href="https://xhslink.com/m/2RsUq7tFlJr">Xiaohongshu</a>
         </div>
       </div>
@@ -278,27 +474,42 @@ function Contact() {
   );
 }
 
-function App() {
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+// Preview-only switch for comparing the two typefaces. It is compiled in only
+// when VITE_FONT_PREVIEW=1 is set at build time; the live site never shows it.
+function FontPreviewSwitch() {
+  const [font, setFont] = useState(
+    () => document.documentElement.dataset.font || 'cormorant'
+  );
 
   useEffect(() => {
-    const updateHeaderVisibility = () => {
-      setIsHeaderVisible(window.scrollY < window.innerHeight * 0.72);
-    };
-
-    updateHeaderVisibility();
-    window.addEventListener('scroll', updateHeaderVisibility, { passive: true });
-    window.addEventListener('resize', updateHeaderVisibility);
-
-    return () => {
-      window.removeEventListener('scroll', updateHeaderVisibility);
-      window.removeEventListener('resize', updateHeaderVisibility);
-    };
-  }, []);
+    document.documentElement.dataset.font = font;
+  }, [font]);
 
   return (
+    <div className="font-switch" role="group" aria-label="Typeface preview">
+      <span>Typeface</span>
+      <button
+        type="button"
+        className={font === 'cormorant' ? 'active' : ''}
+        onClick={() => setFont('cormorant')}
+      >
+        A · Cormorant
+      </button>
+      <button
+        type="button"
+        className={font === 'garamond' ? 'active' : ''}
+        onClick={() => setFont('garamond')}
+      >
+        B · EB Garamond
+      </button>
+    </div>
+  );
+}
+
+function App() {
+  return (
     <>
-      <Header visible={isHeaderVisible} />
+      <Header />
       <main>
         <Home />
         <About />
@@ -309,6 +520,7 @@ function App() {
         <Logo />
         <p>© 2026 zizyfuz. All photographs reserved.</p>
       </footer>
+      {import.meta.env.VITE_FONT_PREVIEW === '1' && <FontPreviewSwitch />}
     </>
   );
 }

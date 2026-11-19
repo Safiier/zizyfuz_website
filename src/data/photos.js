@@ -6,6 +6,8 @@ const rawPhotos = [
   {
     slug: 'huangshan-first-light',
     title: 'Huangshan in Haze',
+    place: 'Huangshan, Anhui',
+    year: 2026,
     category: 'Landscape',
     alt: 'Pines cling to sheer granite spires above a ravine filled with pale yellow haze in Huangshan',
     orientation: 'portrait',
@@ -17,6 +19,8 @@ const rawPhotos = [
   {
     slug: 'chengkan-in-single-file',
     title: 'In Single File',
+    place: 'Chengkan, Anhui',
+    year: 2026,
     category: 'Wildlife',
     alt: 'Five white waterbirds swim in a diagonal line across dark water in Chengkan',
     orientation: 'square',
@@ -28,6 +32,8 @@ const rawPhotos = [
   {
     slug: 'chifeng-autumn-road',
     title: 'Autumn Road',
+    place: 'Chifeng, Inner Mongolia',
+    year: 2026,
     category: 'Travel',
     alt: 'A winding road catches the light as it crosses gold and rust-coloured hills near Chifeng',
     orientation: 'portrait',
@@ -39,10 +45,12 @@ const rawPhotos = [
   {
     slug: 'dawn-tree-end',
     title: 'Dawn Tree End',
+    place: 'Wytham, Oxford',
+    year: 2026,
+    hero: 2,
     category: 'Landscape',
     alt: 'A misty field at dawn with trees fading into purple morning fog',
     orientation: 'landscape',
-    featured: true,
     src: '/photos-web/dawn-tree-end.jpg',
     width: 2200,
     height: 1238,
@@ -51,6 +59,8 @@ const rawPhotos = [
   {
     slug: 'westminster-vault',
     title: 'Westminster Vault',
+    place: 'Westminster Abbey, London',
+    year: 2026,
     category: 'Travel',
     alt: 'Stone ribs and carved bosses run between two rows of tall windows in Westminster Abbey',
     orientation: 'landscape',
@@ -62,6 +72,9 @@ const rawPhotos = [
   {
     slug: 'genie-tree-and-peak',
     title: 'Tree and Peak',
+    place: 'Mount Genyen, Sichuan',
+    year: 2026,
+    hero: 3,
     category: 'Landscape',
     alt: 'A stand of dark trees on a green ridge beneath a snow-covered peak disappearing into cloud',
     orientation: 'landscape',
@@ -73,6 +86,8 @@ const rawPhotos = [
   {
     slug: 'chengkan-fish-lanterns',
     title: 'Fish Lanterns',
+    place: 'Chengkan, Anhui',
+    year: 2026,
     category: 'Travel',
     alt: 'Red fish lanterns and white fireworks reflect in dark water beside a raft in Chengkan',
     orientation: 'landscape',
@@ -84,6 +99,8 @@ const rawPhotos = [
   {
     slug: 'huangshan',
     title: 'Huangshan',
+    place: 'Huangshan, Anhui',
+    year: 2024,
     category: 'Landscape',
     alt: 'Layered Huangshan mountain silhouettes framed by pine branches in black and white',
     orientation: 'landscape',
@@ -95,6 +112,9 @@ const rawPhotos = [
   {
     slug: 'ulan-butong-watering-place',
     title: 'Watering Place',
+    place: 'Ulan Butong, Inner Mongolia',
+    year: 2026,
+    hero: 4,
     category: 'Landscape',
     alt: 'Dark cattle stand in shallow water below a gold hillside dotted with autumn birches in Ulan Butong',
     orientation: 'landscape',
@@ -106,6 +126,8 @@ const rawPhotos = [
   {
     slug: 'crowned-pigeon',
     title: 'Crowned Pigeon',
+    place: 'Jurong Bird Park, Singapore',
+    year: 2022,
     category: 'Wildlife',
     alt: 'Close portrait of a crowned pigeon with lacy feathers and a red eye',
     orientation: 'landscape',
@@ -117,6 +139,8 @@ const rawPhotos = [
   {
     slug: 'buoy',
     title: 'Buoy',
+    place: 'Johor Strait, Singapore',
+    year: 2022,
     category: 'Coast',
     alt: 'A small buoy on calm water beneath pastel clouds and distant ships',
     orientation: 'portrait',
@@ -128,6 +152,8 @@ const rawPhotos = [
   {
     slug: 'chongqing-10',
     title: 'Chongqing X',
+    place: 'Chongqing',
+    year: 2026,
     category: 'City',
     alt: 'A Chongqing monorail passing through red bridge structures in warm light',
     orientation: 'landscape',
@@ -139,6 +165,8 @@ const rawPhotos = [
   {
     slug: 'wytham-fallen-wood',
     title: 'Fallen Wood',
+    place: 'Wytham Woods, Oxford',
+    year: 2026,
     category: 'Landscape',
     alt: 'Warm light catches the bare limbs of a fallen tree against the dark green floor of Wytham Woods',
     orientation: 'landscape',
@@ -150,6 +178,8 @@ const rawPhotos = [
   {
     slug: 'tiaodeng-power-lines',
     title: 'Power Lines',
+    place: 'Tiaodeng, Chongqing',
+    year: 2024,
     category: 'City',
     alt: 'Black overhead wires cross a flat grey sky in a dense diagonal pattern in Tiaodeng',
     orientation: 'landscape',
@@ -161,6 +191,8 @@ const rawPhotos = [
   {
     slug: 'bipenggou-12',
     title: 'Bipenggou XII',
+    place: 'Bipenggou, Sichuan',
+    year: 2025,
     category: 'Landscape',
     alt: 'Snowy tree branches and winter forest light in Bipenggou',
     orientation: 'landscape',
@@ -172,6 +204,8 @@ const rawPhotos = [
   {
     slug: 'chongqing-9',
     title: 'Chongqing IX',
+    place: 'Chongqing',
+    year: 2026,
     category: 'City',
     alt: 'Golden Chongqing skyline and river viewed from behind a dark unfinished building',
     orientation: 'landscape',
@@ -183,6 +217,8 @@ const rawPhotos = [
   {
     slug: 'beachy-lighthouse',
     title: 'Beachy Lighthouse',
+    place: 'Beachy Head, East Sussex',
+    year: 2025,
     category: 'Coast',
     alt: 'Beachy Head Lighthouse below white cliffs on the English coast',
     orientation: 'landscape',
@@ -194,6 +230,8 @@ const rawPhotos = [
   {
     slug: 'genie-below-the-clouds',
     title: 'Below the Clouds',
+    place: 'Mount Genyen, Sichuan',
+    year: 2026,
     category: 'Travel',
     alt: 'Three figures follow a grassy ridge beneath a band of low cloud in the mountains of western Sichuan',
     orientation: 'landscape',
@@ -205,6 +243,8 @@ const rawPhotos = [
   {
     slug: 'chongqing-5',
     title: 'Chongqing V',
+    place: 'Chongqing',
+    year: 2026,
     category: 'City',
     alt: 'An old Chongqing building seen through a dark construction passage',
     orientation: 'landscape',
@@ -216,6 +256,8 @@ const rawPhotos = [
   {
     slug: 'dawn-meadow',
     title: 'Dawn Meadow',
+    place: 'Wytham, Oxford',
+    year: 2026,
     category: 'Landscape',
     alt: 'Horses grazing in a blue and violet meadow mist at dawn',
     orientation: 'landscape',
@@ -227,6 +269,8 @@ const rawPhotos = [
   {
     slug: 'jiuzhaigou',
     title: 'Jiuzhaigou',
+    place: 'Jiuzhaigou, Sichuan',
+    year: 2025,
     category: 'Landscape',
     alt: 'A waterfall flowing through forest with mountains behind it in Jiuzhaigou',
     orientation: 'portrait',
@@ -238,6 +282,8 @@ const rawPhotos = [
   {
     slug: 'chongqing-12',
     title: 'Chongqing XII',
+    place: 'Chongqing',
+    year: 2026,
     category: 'City',
     alt: 'People silhouetted beside colorful city lights reflected on water in Chongqing',
     orientation: 'landscape',
@@ -249,10 +295,11 @@ const rawPhotos = [
   {
     slug: 'old-harry',
     title: 'Old Harry',
+    place: 'Old Harry Rocks, Dorset',
+    year: 2026,
     category: 'Coast',
     alt: 'White chalk cliffs and a ferry passing Old Harry Rocks on the Dorset coast',
     orientation: 'landscape',
-    featured: true,
     src: '/photos-web/old-harry.jpg',
     width: 2200,
     height: 1117,
@@ -261,6 +308,8 @@ const rawPhotos = [
   {
     slug: 'jandaya-parakeet',
     title: 'Jandaya Parakeet',
+    place: 'Singapore Zoo',
+    year: 2021,
     category: 'Wildlife',
     alt: 'A jandaya parakeet with orange, yellow, and green feathers perched on a branch',
     orientation: 'portrait',
@@ -272,6 +321,8 @@ const rawPhotos = [
   {
     slug: 'elderly-couple',
     title: 'Elderly Couple',
+    place: 'Swanage, Dorset',
+    year: 2026,
     category: 'People',
     alt: 'An elderly couple walking together along a seaside pier',
     orientation: 'landscape',
@@ -283,6 +334,9 @@ const rawPhotos = [
   {
     slug: 'bipenggou-11',
     title: 'Bipenggou XI',
+    place: 'Bipenggou, Sichuan',
+    year: 2025,
+    hero: 1,
     category: 'Landscape',
     alt: 'A snowy forest with soft sunlight through frost-covered branches in Bipenggou',
     orientation: 'landscape',
@@ -294,6 +348,8 @@ const rawPhotos = [
   {
     slug: 'night-leaf',
     title: 'Night Leaf',
+    place: 'Oxford',
+    year: 2026,
     category: 'City',
     alt: 'Flowering tree branches glowing under a warm streetlight at night',
     orientation: 'landscape',
@@ -305,6 +361,8 @@ const rawPhotos = [
   {
     slug: 'chongsheng-temple',
     title: 'Chongsheng Temple',
+    place: 'Dali, Yunnan',
+    year: 2026,
     category: 'Travel',
     alt: 'Chongsheng Temple roof overlooking Dali, Erhai Lake, and distant mountains',
     orientation: 'landscape',
@@ -316,6 +374,8 @@ const rawPhotos = [
   {
     slug: 'couple-seven-sisters',
     title: 'Seven Sisters',
+    place: 'Seven Sisters, East Sussex',
+    year: 2025,
     category: 'People',
     alt: 'Two people walking on a grassy hill above sheep near the Seven Sisters coast',
     orientation: 'landscape',
@@ -327,6 +387,8 @@ const rawPhotos = [
   {
     slug: 'chongqing-11',
     title: 'Chongqing XI',
+    place: 'Chongqing',
+    year: 2026,
     category: 'City',
     alt: 'Chongqing apartment towers framed by dark bridge beams and red steel',
     orientation: 'landscape',
@@ -338,6 +400,8 @@ const rawPhotos = [
   {
     slug: 'jurong-flamingos',
     title: 'Flamingos at Rest',
+    place: 'Jurong Bird Park, Singapore',
+    year: 2022,
     category: 'Wildlife',
     alt: 'Pale pink flamingos tuck their heads into their feathers above dark rippling water at Jurong Bird Park',
     orientation: 'landscape',
@@ -349,6 +413,8 @@ const rawPhotos = [
   {
     slug: 'zelda',
     title: 'Zelda',
+    place: 'Western Sichuan',
+    year: 2024,
     category: 'Landscape',
     alt: 'Clouds drifting across a green mountain valley under a bright blue sky',
     orientation: 'landscape',
@@ -360,6 +426,8 @@ const rawPhotos = [
   {
     slug: 'sign',
     title: 'Sign',
+    place: 'Oxford',
+    year: 2026,
     category: 'City',
     alt: 'A school crossing sign beneath flowering trees lit by streetlights at night',
     orientation: 'landscape',
@@ -371,6 +439,8 @@ const rawPhotos = [
   {
     slug: 'painted-stork',
     title: 'Painted Stork',
+    place: 'Singapore',
+    year: 2022,
     category: 'Wildlife',
     alt: 'A painted stork spreading black and white wings against dark foliage',
     orientation: 'landscape',
@@ -382,6 +452,8 @@ const rawPhotos = [
   {
     slug: 'chongqing-13',
     title: 'Chongqing XIII',
+    place: 'Chongqing',
+    year: 2026,
     category: 'City',
     alt: 'A bird silhouette standing in Chongqing river reflections at night',
     orientation: 'landscape',
@@ -393,6 +465,8 @@ const rawPhotos = [
   {
     slug: 'bipenggou-10',
     title: 'Bipenggou X',
+    place: 'Bipenggou, Sichuan',
+    year: 2025,
     category: 'Landscape',
     alt: 'Snow-dusted forest and rocky stream bank in Bipenggou',
     orientation: 'landscape',
@@ -404,6 +478,8 @@ const rawPhotos = [
   {
     slug: 'sea-dog',
     title: 'Sea Dog',
+    place: 'Seven Sisters, East Sussex',
+    year: 2025,
     category: 'Coast',
     alt: 'A small dog running across wet sand beside gentle sea waves',
     orientation: 'landscape',
@@ -415,6 +491,8 @@ const rawPhotos = [
   {
     slug: 'green-tree-python',
     title: 'Green Tree Python',
+    place: 'Singapore Zoo',
+    year: 2021,
     category: 'Wildlife',
     alt: 'A green tree python coiled around a branch with its head raised',
     orientation: 'landscape',
@@ -426,10 +504,11 @@ const rawPhotos = [
   {
     slug: 'chongqing-14',
     title: 'Chongqing XIV',
+    place: 'Chongqing',
+    year: 2026,
     category: 'City',
     alt: 'Chongqing skyline at night with Hongya Cave lights reflected on the river',
     orientation: 'landscape',
-    featured: true,
     src: '/photos-web/chongqing-14.jpg',
     width: 2200,
     height: 1237,
@@ -438,6 +517,8 @@ const rawPhotos = [
   {
     slug: 'couple',
     title: 'Couple',
+    place: 'Dorset',
+    year: 2026,
     category: 'People',
     alt: 'A couple walking away across a green hillside under a clear sky',
     orientation: 'landscape',
@@ -449,6 +530,8 @@ const rawPhotos = [
   {
     slug: 'squirrel',
     title: 'Squirrel',
+    place: 'Dali, Yunnan',
+    year: 2026,
     category: 'Wildlife',
     alt: 'A squirrel eating among mossy tree branches in a soft forest scene',
     orientation: 'landscape',
@@ -460,6 +543,8 @@ const rawPhotos = [
   {
     slug: 'climber-two',
     title: 'Climber II',
+    place: 'Guilin, Guangxi',
+    year: 2021,
     category: 'People',
     alt: 'A rock climber in a red shirt scaling a steep grey cliff face',
     orientation: 'landscape',
@@ -471,6 +556,8 @@ const rawPhotos = [
   {
     slug: 'chongqing-7',
     title: 'Chongqing VII',
+    place: 'Chongqing',
+    year: 2026,
     category: 'City',
     alt: 'A boat crossing the Chongqing river through golden ripples at sunset',
     orientation: 'landscape',
@@ -482,6 +569,8 @@ const rawPhotos = [
   {
     slug: 'channel-billed-toucan',
     title: 'Channel-billed Toucan',
+    place: 'Singapore Zoo',
+    year: 2021,
     category: 'Wildlife',
     alt: 'Close portrait of a channel-billed toucan with a blue face and yellow chest',
     orientation: 'landscape',
@@ -493,6 +582,8 @@ const rawPhotos = [
   {
     slug: 'chongqing-6',
     title: 'Chongqing VI',
+    place: 'Chongqing',
+    year: 2026,
     category: 'City',
     alt: 'Dense Chongqing residential towers with a curving road between them',
     orientation: 'landscape',
@@ -504,6 +595,8 @@ const rawPhotos = [
   {
     slug: 'hebi',
     title: 'Hebi',
+    place: 'Singapore Zoo',
+    year: 2021,
     category: 'Wildlife',
     alt: 'A camouflaged snake coiled on pale sand and dry leaves',
     orientation: 'landscape',
@@ -515,6 +608,8 @@ const rawPhotos = [
   {
     slug: 'teal-and-orange2',
     title: 'Teal',
+    place: 'Singapore Zoo',
+    year: 2021,
     category: 'Wildlife',
     alt: 'An orange and green parakeet perched on a branch against a dark leafy background',
     orientation: 'landscape',
@@ -526,6 +621,8 @@ const rawPhotos = [
   {
     slug: 'death-water',
     title: 'Death Water',
+    place: 'Seven Sisters, East Sussex',
+    year: 2025,
     category: 'Coast',
     alt: 'A small sailboat crossing a grey misty sea with a nearly empty horizon',
     orientation: 'landscape',
@@ -558,3 +655,8 @@ export const photos = rawPhotos.map((photo) => ({
   src: assetPath(photo.src),
   srcSet: buildSrcSet(photo),
 }));
+
+// Home page slideshow: photos with a `hero` number, in that order.
+export const heroPhotos = photos
+  .filter((photo) => photo.hero)
+  .sort((a, b) => a.hero - b.hero);
