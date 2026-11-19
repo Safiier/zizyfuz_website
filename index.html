@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Zizyfuz photography portfolio: landscape, wildlife, travel, and quiet human moments."
+      content="Zizyfuz photography portfolio: landscape, wildlife and travel series from Inner Mongolia, Western Sichuan, Huangshan, Oxford and Chongqing."
     />
     <meta name="msvalidate.01" content="2607DE50489C05C64A29BF239D980170" />
     <link rel="icon" type="image/png" sizes="192x192" href="%BASE_URL%favicon.png" />
@@ -29,6 +29,40 @@
     />
     <meta name="twitter:image" content="https://zizyfuz.com/photography/photos-web/old-harry.jpg" />
     <title>Zizyfuz Photography</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://zizyfuz.com/photography/#website",
+            "name": "Zizyfuz Photography",
+            "url": "https://zizyfuz.com/photography/",
+            "inLanguage": "en",
+            "author": { "@id": "https://zizyfuz.com/photography/#photographer" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://zizyfuz.com/photography/#photographer",
+            "name": "zizyfuz",
+            "jobTitle": "Photographer",
+            "url": "https://zizyfuz.com/photography/",
+            "email": "mailto:zizyfuz@gmail.com",
+            "sameAs": ["https://www.instagram.com/zizyfuzfoto"]
+          },
+          {
+            "@type": "CollectionPage",
+            "@id": "https://zizyfuz.com/photography/#gallery",
+            "name": "Zizyfuz Photography portfolio",
+            "description": "Landscape, wildlife and travel photography: Northern Autumn, Western Sichuan, Huangshan & Huizhou, Wytham & Port Meadow, Chongqing.",
+            "url": "https://zizyfuz.com/photography/",
+            "isPartOf": { "@id": "https://zizyfuz.com/photography/#website" },
+            "creator": { "@id": "https://zizyfuz.com/photography/#photographer" },
+            "primaryImageOfPage": "https://zizyfuz.com/photography/photos-web/old-harry.jpg"
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

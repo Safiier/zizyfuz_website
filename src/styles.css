@@ -50,6 +50,19 @@ img {
   max-width: 100%;
 }
 
+/* Text for search engines and screen readers, not shown on screen. */
+.visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
 /* ------------------------------------------------------------------
    Header: "hero" over the slideshow, "compact" bar when scrolling up,
    "hidden" when scrolling down.

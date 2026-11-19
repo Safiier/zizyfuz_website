@@ -244,6 +244,9 @@ function Home() {
       onMouseLeave={() => setPaused(false)}
       {...handlers}
     >
+      <h1 className="visually-hidden">
+        Zizyfuz Photography — landscape, wildlife and travel photography
+      </h1>
       <div className="hero-track">
         {slides.map((photo, i) => {
           const position = positions[i];

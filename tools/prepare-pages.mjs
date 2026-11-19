@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { photos } from '../src/data/photos.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const distRoot = join(root, '..', 'dist');
@@ -12,14 +13,34 @@ await mkdir(distRoot, { recursive: true });
 
 await writeFile(join(distRoot, 'CNAME'), 'zizyfuz.com\n');
 
+// Sitemap with every photograph listed as an image of the portfolio page, so
+// search engines can index the photos (Google Images).
+const xmlEscape = (text) =>
+  String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+const imageEntries = photos
+  .map(
+    (photo) => `    <image:image>
+      <image:loc>${xmlEscape(`${siteUrl}${photo.src}`)}</image:loc>
+    </image:image>`
+  )
+  .join('\n');
+
 await writeFile(
   join(distRoot, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>${photographyUrl}</loc>
+    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
+${imageEntries}
   </url>
 </urlset>
 `
