@@ -12,9 +12,9 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// "Huangshan in Haze · Huangshan, Anhui · 2026"
+// "Huangshan, Anhui · 2026"
 const photoCaption = (photo) =>
-  [photo.title, photo.place, photo.year].filter(Boolean).join(' · ');
+  [photo.place, photo.year].filter(Boolean).join(' · ');
 
 // Number of masonry columns for the current screen width.
 function useColumnCount() {
@@ -474,38 +474,6 @@ function Contact() {
   );
 }
 
-// Preview-only switch for comparing the two typefaces. It is compiled in only
-// when VITE_FONT_PREVIEW=1 is set at build time; the live site never shows it.
-function FontPreviewSwitch() {
-  const [font, setFont] = useState(
-    () => document.documentElement.dataset.font || 'cormorant'
-  );
-
-  useEffect(() => {
-    document.documentElement.dataset.font = font;
-  }, [font]);
-
-  return (
-    <div className="font-switch" role="group" aria-label="Typeface preview">
-      <span>Typeface</span>
-      <button
-        type="button"
-        className={font === 'cormorant' ? 'active' : ''}
-        onClick={() => setFont('cormorant')}
-      >
-        A · Cormorant
-      </button>
-      <button
-        type="button"
-        className={font === 'garamond' ? 'active' : ''}
-        onClick={() => setFont('garamond')}
-      >
-        B · EB Garamond
-      </button>
-    </div>
-  );
-}
-
 function App() {
   return (
     <>
@@ -520,7 +488,6 @@ function App() {
         <Logo />
         <p>© 2026 zizyfuz. All photographs reserved.</p>
       </footer>
-      {import.meta.env.VITE_FONT_PREVIEW === '1' && <FontPreviewSwitch />}
     </>
   );
 }

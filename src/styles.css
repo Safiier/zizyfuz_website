@@ -1,8 +1,6 @@
 /* ------------------------------------------------------------------
-   Typography
-   Two serif options are being compared (A = Cormorant Garamond,
-   B = EB Garamond). Switch by setting data-font on <html>.
-   Cormorant has a small x-height, so it is set slightly larger.
+   Typography: Cormorant Garamond (serif) + Inter (small labels).
+   Cormorant has a small x-height, so serif text is scaled up slightly.
    ------------------------------------------------------------------ */
 :root {
   --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
@@ -21,11 +19,6 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-}
-
-:root[data-font="garamond"] {
-  --font-serif: "EB Garamond", Georgia, "Times New Roman", serif;
-  --serif-scale: 1;
 }
 
 * {
@@ -226,25 +219,44 @@ img {
   width: 100%;
 }
 
+/* Invisible side zones (left / right 14% of the screen); the arrow only
+   appears while the pointer is inside one of them. */
 .hero-arrow {
   align-items: center;
   background: transparent;
   border: 0;
-  color: rgba(255, 253, 248, 0.82);
+  bottom: 18%;
+  color: rgba(255, 253, 248, 0.86);
   cursor: pointer;
   display: flex;
-  height: 40%;
-  opacity: 0;
   padding: 0 clamp(0.8rem, 3vw, 2.5rem);
   position: absolute;
-  top: 30%;
-  transition: opacity 260ms ease;
+  top: 22%;
+  width: 14%;
   z-index: 3;
 }
 
-.hero:hover .hero-arrow,
+.hero-arrow svg {
+  opacity: 0;
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease;
+}
+
+.hero-arrow:hover svg,
+.hero-arrow:focus-visible svg {
+  opacity: 1;
+}
+
+.hero-arrow-previous:hover svg {
+  transform: translateX(-0.2rem);
+}
+
+.hero-arrow-next:hover svg {
+  transform: translateX(0.2rem);
+}
+
 .hero-arrow:focus-visible {
-  opacity: 0.85;
   outline: 0;
 }
 
@@ -253,10 +265,12 @@ img {
 }
 
 .hero-arrow-previous {
+  justify-content: flex-start;
   left: 0;
 }
 
 .hero-arrow-next {
+  justify-content: flex-end;
   right: 0;
 }
 
@@ -649,47 +663,6 @@ p {
   gap: 0.95rem;
 }
 
-/* Preview-only typeface switch (not built into the live site). */
-.font-switch {
-  align-items: center;
-  background: rgba(31, 37, 36, 0.88);
-  border-radius: 999px;
-  bottom: 1rem;
-  box-shadow: 0 0.4rem 1.4rem rgba(0, 0, 0, 0.25);
-  color: #fbfaf7;
-  display: flex;
-  font-family: var(--font-sans);
-  font-size: 0.72rem;
-  gap: 0.35rem;
-  left: 50%;
-  padding: 0.35rem 0.4rem 0.35rem 0.9rem;
-  position: fixed;
-  transform: translateX(-50%);
-  z-index: 60;
-}
-
-.font-switch span {
-  letter-spacing: 0.14em;
-  margin-right: 0.3rem;
-  opacity: 0.7;
-  text-transform: uppercase;
-}
-
-.font-switch button {
-  white-space: nowrap;
-  background: transparent;
-  border: 0;
-  border-radius: 999px;
-  color: inherit;
-  cursor: pointer;
-  padding: 0.4rem 0.8rem;
-}
-
-.font-switch button.active {
-  background: #fbfaf7;
-  color: var(--ink);
-}
-
 /* ------------------------------------------------------------------
    Responsive
    ------------------------------------------------------------------ */
@@ -775,12 +748,4 @@ p {
     padding: 0 1rem;
   }
 
-  .font-switch {
-    bottom: 4.2rem;
-    font-size: 0.66rem;
-  }
-
-  .font-switch span {
-    display: none;
-  }
 }
