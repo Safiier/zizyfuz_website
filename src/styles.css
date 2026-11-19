@@ -274,41 +274,6 @@ img {
   right: 0;
 }
 
-.hero-dots {
-  bottom: clamp(1.4rem, 4vh, 2.6rem);
-  display: flex;
-  gap: 0.7rem;
-  left: 50%;
-  position: absolute;
-  transform: translateX(-50%);
-  z-index: 3;
-}
-
-.hero-dot {
-  background: rgba(255, 253, 248, 0.42);
-  border: 0;
-  border-radius: 1px;
-  cursor: pointer;
-  height: 2px;
-  padding: 0;
-  transition:
-    background 300ms ease,
-    width 300ms ease;
-  width: 1.4rem;
-}
-
-.hero-dot::before {
-  content: "";
-  display: block;
-  margin: -0.7rem 0;
-  padding: 0.7rem 0;
-}
-
-.hero-dot-active {
-  background: rgba(255, 253, 248, 0.95);
-  width: 2.6rem;
-}
-
 @media (hover: none) {
   .hero-arrow {
     display: none;
@@ -453,18 +418,39 @@ p {
    Series cards (home page) and series / archive pages
    ------------------------------------------------------------------ */
 .series-index {
-  margin-top: clamp(4.5rem, 9vw, 8rem);
   scroll-margin-top: 4rem;
+}
+
+.selected-heading {
+  margin-top: clamp(4.5rem, 9vw, 8rem);
 }
 
 .series-cards {
   display: grid;
   gap: clamp(1.4rem, 3vw, 2.4rem) clamp(0.8rem, 2vw, 1.5rem);
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
+/* Three cards per row. If the last row has only two cards, they share the
+   row half and half (with a wider crop so the row height stays the same);
+   a single leftover card sits in the middle. */
 .series-card {
   display: block;
+  grid-column: span 2;
+}
+
+.series-card:nth-child(3n + 1):nth-last-child(2),
+.series-card:nth-child(3n + 1):nth-last-child(2) ~ .series-card {
+  grid-column: span 3;
+}
+
+.series-card:nth-child(3n + 1):nth-last-child(2) .series-card-image,
+.series-card:nth-child(3n + 1):nth-last-child(2) ~ .series-card .series-card-image {
+  aspect-ratio: 2 / 1;
+}
+
+.series-card:nth-child(3n + 1):last-child {
+  grid-column: 3 / span 2;
 }
 
 .series-card-image {
@@ -833,6 +819,27 @@ p {
   .series-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .series-card,
+  .series-card:nth-child(3n + 1):nth-last-child(2),
+  .series-card:nth-child(3n + 1):nth-last-child(2) ~ .series-card,
+  .series-card:nth-child(3n + 1):last-child {
+    grid-column: auto;
+  }
+
+  .series-card .series-card-image,
+  .series-card:nth-child(3n + 1):nth-last-child(2) .series-card-image,
+  .series-card:nth-child(3n + 1):nth-last-child(2) ~ .series-card .series-card-image {
+    aspect-ratio: 4 / 3;
+  }
+
+  .series-cards .series-card:nth-child(odd):last-child {
+    grid-column: 1 / -1;
+  }
+
+  .series-cards .series-card:nth-child(odd):last-child .series-card-image {
+    aspect-ratio: 2 / 1;
+  }
 }
 
 @media (max-width: 640px) {
@@ -887,6 +894,14 @@ p {
 
   .series-cards {
     grid-template-columns: 1fr;
+  }
+
+  .series-cards .series-card:nth-child(odd):last-child {
+    grid-column: auto;
+  }
+
+  .series-cards .series-card:nth-child(odd):last-child .series-card-image {
+    aspect-ratio: 4 / 3;
   }
 
   .site-footer {

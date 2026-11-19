@@ -212,7 +212,6 @@ function Home() {
   const [paused, setPaused] = useState(false);
   const previousPositions = useRef([]);
 
-  const goTo = useCallback((next) => setIndex(((next % count) + count) % count), [count]);
   const next = useCallback(() => setIndex((i) => (i + 1) % count), [count]);
   const previous = useCallback(() => setIndex((i) => (i - 1 + count) % count), [count]);
   const { handlers } = useSwipe(next, previous);
@@ -292,19 +291,6 @@ function Home() {
           >
             <ChevronRight size={30} strokeWidth={1.25} aria-hidden="true" />
           </button>
-          <div className="hero-dots" role="tablist" aria-label="Choose photo">
-            {slides.map((photo, i) => (
-              <button
-                key={photo.slug}
-                className={`hero-dot ${i === index ? 'hero-dot-active' : ''}`}
-                onClick={() => goTo(i)}
-                type="button"
-                role="tab"
-                aria-selected={i === index}
-                aria-label={photo.title}
-              />
-            ))}
-          </div>
         </>
       )}
     </section>
@@ -432,16 +418,11 @@ function SeriesIndex() {
             </div>
             <div className="series-card-text">
               <h3>{series.title}</h3>
-              <p>
-                {series.items.length} photographs · {series.years}
-              </p>
+              <p>{series.years}</p>
             </div>
           </a>
         ))}
       </div>
-      <a className="all-works-link" href="#archive">
-        View all {photos.length} works
-      </a>
     </div>
   );
 }
@@ -449,11 +430,14 @@ function SeriesIndex() {
 function Gallery() {
   return (
     <section className="section gallery-section" id="gallery" aria-label="Selected works">
-      <div className="section-heading">
+      <SeriesIndex />
+      <div className="section-heading selected-heading">
         <p className="eyebrow">Selected Works</p>
       </div>
       <PhotoGrid items={featuredPhotos} />
-      <SeriesIndex />
+      <a className="all-works-link" href="#archive">
+        View all works
+      </a>
     </section>
   );
 }
@@ -469,9 +453,7 @@ function SeriesPage({ series }) {
       <header className="page-header">
         <p className="eyebrow">Series</p>
         <h1 id="page-title">{series.title}</h1>
-        <p className="page-meta">
-          {series.items.length} photographs · {series.years}
-        </p>
+        <p className="page-meta">{series.years}</p>
         {series.intro && <p className="page-intro">{series.intro}</p>}
       </header>
       <PhotoGrid items={series.items} />
@@ -498,7 +480,6 @@ function ArchivePage() {
       <header className="page-header">
         <p className="eyebrow">Archive</p>
         <h1 id="page-title">All Works</h1>
-        <p className="page-meta">{photos.length} photographs</p>
       </header>
       <PhotoGrid items={photos} />
     </section>
