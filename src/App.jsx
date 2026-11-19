@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { heroPhotos, photos } from './data/photos.js';
 import { featuredPhotos, seriesByKey, seriesList } from './data/series.js';
@@ -100,8 +100,12 @@ function parseHash() {
   return { view: 'main', anchor: hash };
 }
 
+const routeViewKey = (route) =>
+  route.view === 'series' ? `series-${route.key}` : route.view;
+
 function useRoute() {
   const [route, setRoute] = useState(parseHash);
+  const previousViewKey = useRef(null);
 
   useEffect(() => {
     const onHashChange = () => setRoute(parseHash());
@@ -109,16 +113,23 @@ function useRoute() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  // After the view changes, jump to the right place.
-  useEffect(() => {
-    if (route.view === 'main' && route.anchor) {
-      const target = document.getElementById(route.anchor);
-      if (target) {
-        window.requestAnimationFrame(() => target.scrollIntoView());
-        return;
-      }
+  // When we move to a DIFFERENT page (home ↔ a series ↔ all works), jump
+  // straight to the right spot before the new page is painted: no scrolling
+  // animation across the old page. Links within the same page (e.g. Home →
+  // Gallery) keep the browser's normal smooth scroll.
+  useLayoutEffect(() => {
+    const viewKey = routeViewKey(route);
+    const changedPage = previousViewKey.current !== viewKey;
+    previousViewKey.current = viewKey;
+    if (!changedPage) return;
+
+    const target =
+      route.view === 'main' && route.anchor ? document.getElementById(route.anchor) : null;
+    if (target) {
+      target.scrollIntoView({ behavior: 'instant', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
-    if (route.view !== 'main') window.scrollTo(0, 0);
   }, [route]);
 
   return route;
