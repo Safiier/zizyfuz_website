@@ -43,6 +43,7 @@ await writeFile(
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="refresh" content="0; url=/photography/" />
     <title>zizyfuz</title>
+    <link rel="icon" type="image/png" sizes="192x192" href="/photography/favicon.png" />
     <meta name="msvalidate.01" content="${bingVerification}" />
     <link rel="canonical" href="${photographyUrl}" />
   </head>
