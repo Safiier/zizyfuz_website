@@ -6,7 +6,7 @@ import { featuredPhotos, seriesByKey, seriesList } from './data/series.js';
 const email = 'zizyfuz@gmail.com';
 
 const gallerySizes = '(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw';
-const heroInterval = 6500;
+const heroInterval = 6000;
 const swipeThreshold = 45;
 
 const prefersReducedMotion = () =>
@@ -208,22 +208,25 @@ function Header({ overHero }) {
 function Home() {
   const slides = heroPhotos.length ? heroPhotos : [photos[0]];
   const count = slides.length;
-  const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  // Start on a random slide each time the page is opened.
+  const [startIndex] = useState(() => Math.floor(Math.random() * count));
+  const [index, setIndex] = useState(startIndex);
   const previousPositions = useRef([]);
 
   const next = useCallback(() => setIndex((i) => (i + 1) % count), [count]);
   const previous = useCallback(() => setIndex((i) => (i - 1 + count) % count), [count]);
   const { handlers } = useSwipe(next, previous);
 
-  // Auto-advance, unless paused, reduced motion, or the tab is hidden.
+  // Auto-advance every 6 seconds. The timer restarts after a manual change, and
+  // it waits while the browser tab is hidden. (Not paused on hover: the hero
+  // fills the screen, so the pointer is almost always over it.)
   useEffect(() => {
-    if (count < 2 || paused || prefersReducedMotion()) return undefined;
+    if (count < 2 || prefersReducedMotion()) return undefined;
     const timer = window.setInterval(() => {
       if (!document.hidden) next();
     }, heroInterval);
     return () => window.clearInterval(timer);
-  }, [count, paused, next, index]);
+  }, [count, next, index]);
 
   // Each slide sits at a horizontal position relative to the current one:
   // -1 = just left, 0 = on screen, 1.. = to the right. Slides that wrap from
@@ -240,8 +243,6 @@ function Home() {
       id="home"
       aria-label="zizyfuz photography home"
       aria-roledescription="carousel"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
       {...handlers}
     >
       <h1 className="visually-hidden">
@@ -268,8 +269,8 @@ function Home() {
                 srcSet={photo.srcSet}
                 sizes="(max-aspect-ratio: 16/9) 178vh, 100vw"
                 alt={photo.alt ?? photo.title}
-                fetchPriority={i === 0 ? 'high' : 'low'}
-                decoding={i === 0 ? 'sync' : 'async'}
+                fetchPriority={i === startIndex ? 'high' : 'low'}
+                decoding={i === startIndex ? 'sync' : 'async'}
               />
             </div>
           );
