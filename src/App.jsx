@@ -6,7 +6,7 @@ import { featuredPhotos, seriesByKey, seriesList } from './data/series.js';
 const email = 'zizyfuz@gmail.com';
 
 const gallerySizes = '(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw';
-const heroInterval = 6000;
+const heroInterval = 8000;
 const swipeThreshold = 45;
 
 const prefersReducedMotion = () =>
@@ -217,7 +217,7 @@ function Home() {
   const previous = useCallback(() => setIndex((i) => (i - 1 + count) % count), [count]);
   const { handlers } = useSwipe(next, previous);
 
-  // Auto-advance every 6 seconds. The timer restarts after a manual change, and
+  // Auto-advance every 8 seconds. The timer restarts after a manual change, and
   // it waits while the browser tab is hidden. (Not paused on hover: the hero
   // fills the screen, so the pointer is almost always over it.)
   useEffect(() => {
