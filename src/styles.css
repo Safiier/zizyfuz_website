@@ -361,7 +361,16 @@ img {
   line-height: 0.84;
   margin: 0;
   text-transform: uppercase;
+  transition: letter-spacing 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
   white-space: nowrap;
+}
+
+/* On hover the title opens up slightly. The amount is kept small so even
+   the longest title stays on one line, in the same empty band of the photo. */
+@media (hover: hover) {
+  .chapter:hover .chapter-title {
+    letter-spacing: 0.035em;
+  }
 }
 
 /* Only where the lower part of the photo is open ground. */
@@ -713,7 +722,8 @@ img {
 @media (prefers-reduced-motion: reduce) {
   .hero-slide,
   .hero-slide img,
-  .frame img {
+  .frame img,
+  .chapter-title {
     transition: none;
   }
 
