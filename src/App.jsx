@@ -20,6 +20,26 @@ import {
 
 const logoSrc = `${import.meta.env.BASE_URL}logo-zizyfuz-mark.png`;
 
+// Where the subject sits in each full-screen photo (CSS object-position),
+// so cropping for wide or tall screens keeps it in view.
+const focus = {
+  'bipenggou-11': '50% 50%',
+  'dawn-tree-end': '72% 50%',
+  'genie-tree-and-peak': '70% 45%',
+  'ulan-butong-watering-place': '72% 60%',
+  'ulan-butong-birch-wall': '50% 40%',
+  'huangshan-first-light': '78% 30%',
+  'wytham-dawn-horse': '56% 55%',
+  'chongqing-10': '50% 45%',
+};
+const focusStyle = (photo) => ({ objectPosition: focus[photo.slug] ?? '50% 50%' });
+
+// Series titles stay on one line on computer screens and are sized so they
+// sit in the empty lower part of each cover. Only covers whose lower part
+// is open ground get the larger title.
+const largeTitles = new Set(['western-sichuan']);
+const chapterClass = (series) => (largeTitles.has(series.key) ? 'title-large' : 'title-medium');
+
 // ---------------------------------------------------------------------------
 // Lightbox state shared by every grid on a page
 function useLightbox(items) {
@@ -155,9 +175,9 @@ function Header({ overHero }) {
         <span>zizyfuz</span>
       </a>
       <nav className="nav" aria-label="Primary navigation">
+        <a href="#about">About</a>
         <a href="#series">Series</a>
         <a href="#selected">Selected</a>
-        <a href="#about">About</a>
         <a href="#contact">Contact</a>
       </nav>
     </header>
@@ -195,6 +215,7 @@ function Hero() {
             srcSet={photo.srcSet}
             sizes="(max-aspect-ratio: 16/9) 178vh, 100vw"
             alt={photo.alt ?? photo.title}
+            style={focusStyle(photo)}
             fetchPriority={i === startIndex ? 'high' : 'low'}
           />
         </div>
@@ -224,13 +245,14 @@ function Hero() {
 function Chapter({ series }) {
   const cover = series.coverPhoto;
   return (
-    <a className="chapter" href={`#series-${series.key}`}>
+    <a className={`chapter ${chapterClass(series)}`} href={`#series-${series.key}`}>
       <img
         className="chapter-image"
         src={cover.src}
         srcSet={cover.srcSet}
         sizes="(max-aspect-ratio: 16/9) 178vh, 100vw"
         alt={cover.alt ?? series.title}
+        style={focusStyle(cover)}
         loading="lazy"
         decoding="async"
       />
@@ -306,8 +328,14 @@ function SeriesPage({ series }) {
 
   return (
     <>
-      <header className="series-cover">
-        <img src={cover.src} srcSet={cover.srcSet} sizes="(max-aspect-ratio: 16/9) 178vh, 100vw" alt={cover.alt} />
+      <header className={`series-cover ${chapterClass(series)}`}>
+        <img
+          src={cover.src}
+          srcSet={cover.srcSet}
+          sizes="(max-aspect-ratio: 16/9) 178vh, 100vw"
+          alt={cover.alt}
+          style={focusStyle(cover)}
+        />
         <span className="chapter-shade" aria-hidden="true" />
         <div className="chapter-text">
           <a className="back-link" href="#series">All series</a>
@@ -361,9 +389,9 @@ export default function App() {
         {route.view === 'main' && (
           <>
             <Hero />
+            <About />
             <SeriesChapters />
             <Selected />
-            <About />
           </>
         )}
         {series && <SeriesPage series={series} key={series.key} />}

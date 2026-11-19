@@ -20,17 +20,23 @@
 - 改版前的线上版本：tag `v1-live-2026-11-19`（随时可以回到它）
 - 改版开发分支：`redesign`
 
-## 页面结构
+## 页面结构（设计 A · Night Drive，用户 2026-11-19 选定）
 
-- **Home**：全屏轮播（`hero: 1–4` 的 4 张），每次打开网页随机从其中一张开始，每 8 秒自动切换（鼠标在图上也继续播放）；鼠标移到左右两侧才出现箭头；手机可左右滑动。
+深色电影感：背景石板色 `#151b20`，照片提供全部颜色。
+
+- **Home**：全屏轮播（`hero: 1–4` 的 4 张），每次打开网页随机从其中一张开始，每 8 秒自动切换（鼠标在图上也继续播放）；鼠标移到左右两侧才出现箭头；手机可左右滑动。左下角超大 ZIZYFUZ 字标，右下角是当前照片的地点和经纬度。
+- 顺序：Home → **About** → **Series** → **Selected** → Contact（用户 2026-11-19 要求 About 放在 Series 前面）。
 - **About**：左图右文，配图是 `genyen-walking-on`（格聂，用户 2026-11-19 指定，图框按照片原比例显示）。文案是用户原文，逐字保留：
 
   > “You are the first audience of your own life.”
   >
   > I have lived in Chongqing, Singapore, and currently pursuing a degree in the UK. I plan the journeys and explore the vast world through road trips. Let photography be the channel that guides you to view the world and yourself.
 
-- **Gallery 区（`#gallery`）**：先是 **Series** 卡片（封面 + 标题 + 年份），再是 **Selected Works**（`featured: true` 的照片），最后是 “View all works” 链接。
-- **系列页（`#series-<key>`）**：标题、年份、（介绍，目前为空）、该系列全部照片、上一个/下一个系列。
+- **Series（`#series`）**：每个系列一整屏，封面铺满，超大窄体标题 + 年份 + 经纬度；往下滚时后一章叠在前一章上。
+  - 系列标题在电脑上**必须一行**、不能挡住照片主体（用户 2026-11-19 反馈）。大小由 `App.jsx` 的 `largeTitles` 控制（只有下方是空地的封面才用大号）；照片主体位置由 `focus`（object-position）控制。**换封面或换 hero 照片时，要同时检查/更新这两处**，并在电脑和手机上截图确认。
+  - 鼠标移上去不能改变标题大小或字距（会换行）。
+- **Selected（`#selected`）**：`featured: true` 的照片（深色瀑布流），最后是 “View all works” 链接。
+- **系列页（`#series-<key>`）**：全屏封面 + 标题、年份、经纬度、（介绍，目前为空）；照片像连续镜头：横图通栏，竖图两张一组并排；最后是下一个系列。
 - **All Works（`#archive`）**：全部照片。
 - **Contact**：`zizyfuz@gmail.com`、Instagram、Xiaohongshu。
 - 导航：往下滚隐藏，往上滑浮出浅色细导航条。
@@ -45,17 +51,19 @@
 - **不做 Early Work & Others 系列**（`series: 'early'` 的照片只在 All Works 出现）。
 - 系列介绍文字**目前留空**（`series.js` 里 `intro: ''`），等用户自己写。
 - Series 区放在 Selected Works **前面**。
-- 字体：Cormorant Garamond（标题/导航/正文衬线）+ Inter（小标签），用 @fontsource 自托管。
+- 字体：Six Caps（超窄体大标题、字标）+ Instrument Sans（其余文字），用 @fontsource 自托管。
 - 作品顺序是精心排的（`photos.js` 数组顺序 = 显示顺序），瀑布流必须按这个顺序从左到右、从上到下排列（`distributeIntoColumns()`），不要改回 CSS `column-count`。
-- 风格：极简、干净、有质感，背景 off-white；不做营销型 landing page。
+- 风格：深色电影感（设计 A · Night Drive）；不做营销型 landing page。
 - Logo：页面使用 `public/logo-zizyfuz-mark.png`；favicon 是 `public/favicon.png`。不要改源 logo，除非用户明确要求。
 
 ## 关键文件
 
 - `src/data/photos.js`：全部照片清单（顺序 = 显示顺序）。文件开头有字段说明。
 - `src/data/series.js`：系列定义（标题、封面、介绍）和「超过 12 张才成系列」规则。
-- `src/App.jsx`：页面结构、路由（hash）、轮播、导航、网格、lightbox。
-- `src/styles.css`：全部样式和响应式布局。
+- `src/App.jsx`：页面结构、轮播、系列章节、网格；`focus`（每张全屏照片的主体位置）和 `largeTitles`（哪些系列用大号标题）也在这里。
+- `src/core.jsx`：路由（hash）、按序瀑布流分列、滑动、导航显示模式、lightbox。
+- `src/data/places.js`：每个地点的大致经纬度（一位小数）。**新地点的照片要在这里加一行**，否则不显示经纬度。
+- `src/styles.css`：全部样式和响应式布局；`src/lightbox.css`：大图查看样式。
 - `public/photos-web/`：网页图片。每张照片 4 个文件：`<slug>-800.webp`、`<slug>-1600.webp`、`<slug>-2200.webp`、`<slug>.jpg`。
 - `tools/add-photo.mjs`：加照片的命令（见下）。
 - `tools/check-photos.mjs`：构建前自动检查每张照片的文件是否齐全，缺文件会让 build 失败。

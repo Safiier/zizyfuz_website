@@ -209,7 +209,8 @@ img {
 /* The one loud element on the first screen. */
 .hero-wordmark {
   font-family: var(--display);
-  font-size: clamp(8rem, 21vw, 24rem);
+  font-size: min(21vw, 34vh);
+  font-size: min(21vw, 34svh);
   line-height: 0.78;
   margin: 0 0 -0.04em;
   text-transform: uppercase;
@@ -353,17 +354,20 @@ img {
   color: var(--bone);
   display: block;
   font-family: var(--display);
-  font-size: clamp(6rem, 19vw, 19rem);
+  font-size: min(13vw, 24vh);
+  font-size: min(13vw, 24svh);
   font-weight: 400;
   letter-spacing: 0.005em;
   line-height: 0.84;
   margin: 0;
   text-transform: uppercase;
-  transition: letter-spacing 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  white-space: nowrap;
 }
 
-.chapter:hover .chapter-title {
-  letter-spacing: 0.03em;
+/* Only where the lower part of the photo is open ground. */
+.title-large .chapter-title {
+  font-size: min(17vw, 30vh);
+  font-size: min(17vw, 30svh);
 }
 
 .chapter-meta {
@@ -672,16 +676,28 @@ img {
     height: 86svh;
   }
 
-  .chapter-title {
-    font-size: clamp(5rem, 26vw, 9rem);
+  /* On phones long titles may take two lines; keep them compact. */
+  .chapter-title,
+  .title-large .chapter-title {
+    font-size: min(22vw, 14svh);
+    line-height: 0.94;
+    white-space: normal;
+  }
+
+  .hero-foot {
+    flex-wrap: nowrap;
   }
 
   .hero-wordmark {
-    font-size: 44vw;
+    font-size: 30vw;
   }
 
   .hero-caption {
-    text-align: left;
+    font-size: 0.85rem;
+  }
+
+  .hero-caption .coordinates {
+    font-size: 0.75rem;
   }
 
   .sequence-row-1 .frame.is-upright {
@@ -697,8 +713,7 @@ img {
 @media (prefers-reduced-motion: reduce) {
   .hero-slide,
   .hero-slide img,
-  .frame img,
-  .chapter-title {
+  .frame img {
     transition: none;
   }
 
