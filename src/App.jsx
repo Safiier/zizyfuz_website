@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { heroPhotos, photos } from './data/photos.js';
+import { featuredPhotos, seriesByKey, seriesList } from './data/series.js';
 
 const email = 'zizyfuz@gmail.com';
 
@@ -86,6 +87,43 @@ function useSwipe(onSwipeLeft, onSwipeRight) {
   return { handlers: { onTouchStart, onTouchEnd }, justSwiped };
 }
 
+// Simple hash routing (plain "#name" hashes only):
+//   #series-<key>  -> a series page
+//   #archive       -> all works
+//   anything else  -> the main page, scrolled to that section (#about ...)
+function parseHash() {
+  const hash = decodeURIComponent(window.location.hash.slice(1));
+  if (hash === 'archive') return { view: 'archive' };
+  if (hash.startsWith('series-') && seriesByKey[hash.slice(7)]) {
+    return { view: 'series', key: hash.slice(7) };
+  }
+  return { view: 'main', anchor: hash };
+}
+
+function useRoute() {
+  const [route, setRoute] = useState(parseHash);
+
+  useEffect(() => {
+    const onHashChange = () => setRoute(parseHash());
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // After the view changes, jump to the right place.
+  useEffect(() => {
+    if (route.view === 'main' && route.anchor) {
+      const target = document.getElementById(route.anchor);
+      if (target) {
+        window.requestAnimationFrame(() => target.scrollIntoView());
+        return;
+      }
+    }
+    if (route.view !== 'main') window.scrollTo(0, 0);
+  }, [route]);
+
+  return route;
+}
+
 function Logo() {
   return (
     <a className="logo" href="#home" aria-label="zizyfuz home">
@@ -104,8 +142,8 @@ function Logo() {
 // - "hero": large transparent navigation over the home slideshow
 // - "compact": slim light bar that slides in when the visitor scrolls up
 // - "hidden": scrolled down past the hero
-function useHeaderMode() {
-  const [mode, setMode] = useState('hero');
+function useHeaderMode(overHero) {
+  const [mode, setMode] = useState(overHero ? 'hero' : 'compact');
 
   useEffect(() => {
     let lastY = window.scrollY;
@@ -116,8 +154,10 @@ function useHeaderMode() {
       const y = window.scrollY;
       const heroLimit = window.innerHeight * 0.72;
 
-      if (y < heroLimit) {
+      if (overHero && y < heroLimit) {
         setMode('hero');
+      } else if (!overHero && y < 80) {
+        setMode('compact');
       } else if (y < lastY - 4) {
         setMode('compact');
       } else if (y > lastY + 4) {
@@ -140,13 +180,13 @@ function useHeaderMode() {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, []);
+  }, [overHero]);
 
   return mode;
 }
 
-function Header() {
-  const mode = useHeaderMode();
+function Header({ overHero }) {
+  const mode = useHeaderMode(overHero);
 
   return (
     <header className={`site-header site-header-${mode}`}>
@@ -299,38 +339,36 @@ function About() {
   );
 }
 
-function Gallery() {
+// Ordered masonry grid with its own lightbox. Used by Selected Works,
+// series pages and All Works.
+function PhotoGrid({ items }) {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null);
   const columnCount = useColumnCount();
   const columns = useMemo(
-    () => distributeIntoColumns(photos, columnCount),
-    [columnCount]
+    () => distributeIntoColumns(items, columnCount),
+    [items, columnCount]
   );
   const selectedPhoto =
-    selectedPhotoIndex === null ? null : photos[selectedPhotoIndex];
+    selectedPhotoIndex === null ? null : items[selectedPhotoIndex];
 
   const showPreviousPhoto = useCallback(() => {
     setSelectedPhotoIndex((currentIndex) =>
       currentIndex === null
         ? currentIndex
-        : (currentIndex - 1 + photos.length) % photos.length
+        : (currentIndex - 1 + items.length) % items.length
     );
-  }, []);
+  }, [items]);
 
   const showNextPhoto = useCallback(() => {
     setSelectedPhotoIndex((currentIndex) =>
-      currentIndex === null ? currentIndex : (currentIndex + 1) % photos.length
+      currentIndex === null ? currentIndex : (currentIndex + 1) % items.length
     );
-  }, []);
+  }, [items]);
 
   const closeLightbox = useCallback(() => setSelectedPhotoIndex(null), []);
 
   return (
-    <section className="section gallery-section" id="gallery" aria-label="Gallery">
-      <div className="section-heading">
-        <p className="eyebrow">Gallery</p>
-      </div>
-
+    <>
       <div className="photo-grid">
         {columns.map((column, columnIndex) => (
           <div className="photo-column" key={columnIndex}>
@@ -361,6 +399,7 @@ function Gallery() {
 
       {selectedPhoto && (
         <Lightbox
+          items={items}
           index={selectedPhotoIndex}
           photo={selectedPhoto}
           onClose={closeLightbox}
@@ -368,6 +407,100 @@ function Gallery() {
           onPrevious={showPreviousPhoto}
         />
       )}
+    </>
+  );
+}
+
+function SeriesIndex() {
+  return (
+    <div className="series-index" id="series">
+      <div className="section-heading">
+        <p className="eyebrow">Series</p>
+      </div>
+      <div className="series-cards">
+        {seriesList.map((series) => (
+          <a className="series-card" href={`#series-${series.key}`} key={series.key}>
+            <div className="series-card-image">
+              <img
+                src={series.coverPhoto.src}
+                srcSet={series.coverPhoto.srcSet}
+                sizes="(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw"
+                alt={series.coverPhoto.alt ?? series.title}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div className="series-card-text">
+              <h3>{series.title}</h3>
+              <p>
+                {series.items.length} photographs · {series.years}
+              </p>
+            </div>
+          </a>
+        ))}
+      </div>
+      <a className="all-works-link" href="#archive">
+        View all {photos.length} works
+      </a>
+    </div>
+  );
+}
+
+function Gallery() {
+  return (
+    <section className="section gallery-section" id="gallery" aria-label="Selected works">
+      <div className="section-heading">
+        <p className="eyebrow">Selected Works</p>
+      </div>
+      <PhotoGrid items={featuredPhotos} />
+      <SeriesIndex />
+    </section>
+  );
+}
+
+function SeriesPage({ series }) {
+  const position = seriesList.findIndex((item) => item.key === series.key);
+  const previous = seriesList[(position - 1 + seriesList.length) % seriesList.length];
+  const next = seriesList[(position + 1) % seriesList.length];
+
+  return (
+    <section className="section page-section" aria-labelledby="page-title">
+      <a className="back-link" href="#series">← All series</a>
+      <header className="page-header">
+        <p className="eyebrow">Series</p>
+        <h1 id="page-title">{series.title}</h1>
+        <p className="page-meta">
+          {series.items.length} photographs · {series.years}
+        </p>
+        {series.intro && <p className="page-intro">{series.intro}</p>}
+      </header>
+      <PhotoGrid items={series.items} />
+      {seriesList.length > 1 && (
+        <nav className="series-pager" aria-label="Other series">
+          <a href={`#series-${previous.key}`}>
+            <span>Previous series</span>
+            {previous.title}
+          </a>
+          <a href={`#series-${next.key}`}>
+            <span>Next series</span>
+            {next.title}
+          </a>
+        </nav>
+      )}
+    </section>
+  );
+}
+
+function ArchivePage() {
+  return (
+    <section className="section page-section" aria-labelledby="page-title">
+      <a className="back-link" href="#gallery">← Selected works</a>
+      <header className="page-header">
+        <p className="eyebrow">Archive</p>
+        <h1 id="page-title">All Works</h1>
+        <p className="page-meta">{photos.length} photographs</p>
+      </header>
+      <PhotoGrid items={photos} />
     </section>
   );
 }
@@ -381,7 +514,7 @@ function preloadPhoto(photo) {
   image.src = photo.src;
 }
 
-function Lightbox({ index, photo, onClose, onNext, onPrevious }) {
+function Lightbox({ items, index, photo, onClose, onNext, onPrevious }) {
   const { handlers, justSwiped } = useSwipe(onNext, onPrevious);
 
   useEffect(() => {
@@ -405,9 +538,9 @@ function Lightbox({ index, photo, onClose, onNext, onPrevious }) {
   }, []);
 
   useEffect(() => {
-    preloadPhoto(photos[(index + 1) % photos.length]);
-    preloadPhoto(photos[(index - 1 + photos.length) % photos.length]);
-  }, [index]);
+    preloadPhoto(items[(index + 1) % items.length]);
+    preloadPhoto(items[(index - 1 + items.length) % items.length]);
+  }, [items, index]);
 
   const ignoreIfSwiped = (action) => (event) => {
     event.stopPropagation();
@@ -475,13 +608,30 @@ function Contact() {
 }
 
 function App() {
+  const route = useRoute();
+  const series = route.view === 'series' ? seriesByKey[route.key] : null;
+
+  useEffect(() => {
+    document.title = series
+      ? `${series.title} · Zizyfuz Photography`
+      : route.view === 'archive'
+        ? 'All Works · Zizyfuz Photography'
+        : 'Zizyfuz Photography';
+  }, [route, series]);
+
   return (
     <>
-      <Header />
+      <Header overHero={route.view === 'main'} key={route.view} />
       <main>
-        <Home />
-        <About />
-        <Gallery />
+        {route.view === 'main' && (
+          <>
+            <Home />
+            <About />
+            <Gallery />
+          </>
+        )}
+        {series && <SeriesPage series={series} key={series.key} />}
+        {route.view === 'archive' && <ArchivePage />}
         <Contact />
       </main>
       <footer className="site-footer">

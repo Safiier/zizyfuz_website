@@ -442,7 +442,6 @@ const rawPhotos = [
   {
     slug: 'huangshan-lone-pine',
     series: 'huangshan',
-    featured: true,
     title: 'Lone Pine',
     place: 'Huangshan, Anhui',
     year: 2026,
@@ -456,7 +455,6 @@ const rawPhotos = [
   {
     slug: 'tiaodeng-power-lines',
     series: 'chongqing',
-    featured: true,
     title: 'Power Lines',
     place: 'Tiaodeng, Chongqing',
     year: 2024,
@@ -471,7 +469,6 @@ const rawPhotos = [
   {
     slug: 'chifeng-mountain-road',
     series: 'northern-autumn',
-    featured: true,
     title: 'Mountain Road',
     place: 'Chifeng, Inner Mongolia',
     year: 2026,
@@ -485,7 +482,6 @@ const rawPhotos = [
   {
     slug: 'bipenggou-12',
     series: 'western-sichuan',
-    featured: true,
     title: 'Bipenggou XII',
     place: 'Bipenggou, Sichuan',
     year: 2025,
@@ -500,7 +496,6 @@ const rawPhotos = [
   {
     slug: 'seven-sisters-edge',
     series: 'coast',
-    featured: true,
     title: 'Edge',
     place: 'Seven Sisters, East Sussex',
     year: 2025,
@@ -514,7 +509,6 @@ const rawPhotos = [
   {
     slug: 'genyen-partridge',
     series: 'western-sichuan',
-    featured: true,
     title: 'In the Undergrowth',
     place: 'Mount Genyen, Sichuan',
     year: 2026,
@@ -528,7 +522,6 @@ const rawPhotos = [
   {
     slug: 'chongqing-9',
     series: 'chongqing',
-    featured: true,
     title: 'Chongqing IX',
     place: 'Chongqing',
     year: 2026,
@@ -543,7 +536,6 @@ const rawPhotos = [
   {
     slug: 'huangshan-porters',
     series: 'huangshan',
-    featured: true,
     title: 'Porters',
     place: 'Huangshan, Anhui',
     year: 2026,
@@ -557,7 +549,6 @@ const rawPhotos = [
   {
     slug: 'wytham-quiet-flowers',
     series: 'oxford',
-    featured: true,
     title: 'Quiet Flowers',
     place: 'Wytham Woods, Oxford',
     year: 2026,
@@ -571,7 +562,6 @@ const rawPhotos = [
   {
     slug: 'daqingshan-golden-slope',
     series: 'northern-autumn',
-    featured: true,
     title: 'Golden Slope',
     place: 'Chifeng, Inner Mongolia',
     year: 2026,
@@ -585,7 +575,6 @@ const rawPhotos = [
   {
     slug: 'beachy-lighthouse',
     series: 'coast',
-    featured: true,
     title: 'Beachy Lighthouse',
     place: 'Beachy Head, East Sussex',
     year: 2025,
@@ -600,7 +589,6 @@ const rawPhotos = [
   {
     slug: 'genie-below-the-clouds',
     series: 'western-sichuan',
-    featured: true,
     title: 'Below the Clouds',
     place: 'Mount Genyen, Sichuan',
     year: 2026,
@@ -668,7 +656,6 @@ const rawPhotos = [
   {
     slug: 'dawn-meadow',
     series: 'oxford',
-    featured: true,
     title: 'Dawn Meadow',
     place: 'Wytham, Oxford',
     year: 2026,
@@ -789,7 +776,6 @@ const rawPhotos = [
   {
     slug: 'old-harry',
     series: 'coast',
-    featured: true,
     title: 'Old Harry',
     place: 'Old Harry Rocks, Dorset',
     year: 2026,
