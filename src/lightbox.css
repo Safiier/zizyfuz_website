@@ -1,0 +1,159 @@
+/* Enlarged-photo view, shared by every design. Uses --lightbox-font. */
+/* Text for search engines and screen readers, not shown on screen. */
+.visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+
+/* ------------------------------------------------------------------
+   Lightbox
+   ------------------------------------------------------------------ */
+/* The photo sits in the middle with a clear side margin on each side; the
+   arrows live in those margins, so they never cover the picture and there
+   are no grey hover bands. */
+.lightbox {
+  --lightbox-side: clamp(3.5rem, 6vw, 6rem);
+  align-items: center;
+  animation: lightbox-fade 220ms ease both;
+  background: rgba(15, 18, 17, 0.97);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  overscroll-behavior: contain;
+  padding: clamp(1rem, 3vw, 2.5rem) var(--lightbox-side);
+  position: fixed;
+  touch-action: pan-y pinch-zoom;
+  z-index: 50;
+}
+
+.lightbox-close {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  color: rgba(255, 253, 248, 0.72);
+  cursor: pointer;
+  display: inline-flex;
+  height: 2.75rem;
+  justify-content: center;
+  position: fixed;
+  right: clamp(0.5rem, 1.5vw, 1.25rem);
+  top: clamp(0.5rem, 1.5vw, 1.25rem);
+  transition:
+    background 200ms ease,
+    color 200ms ease;
+  width: 2.75rem;
+  z-index: 4;
+}
+
+.lightbox-nav {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  color: rgba(255, 253, 248, 0.55);
+  cursor: pointer;
+  display: flex;
+  height: 3.25rem;
+  justify-content: center;
+  padding: 0;
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  transition:
+    background 200ms ease,
+    color 200ms ease;
+  width: 3.25rem;
+  z-index: 3;
+}
+
+.lightbox-nav-previous {
+  left: calc((var(--lightbox-side) - 3.25rem) / 2);
+}
+
+.lightbox-nav-next {
+  right: calc((var(--lightbox-side) - 3.25rem) / 2);
+}
+
+.lightbox-nav:hover,
+.lightbox-nav:focus-visible,
+.lightbox-close:hover,
+.lightbox-close:focus-visible {
+  background: rgba(255, 253, 248, 0.1);
+  color: #fffdf8;
+  outline: 0;
+}
+
+/* On phones, swipe replaces the arrows and the photo uses the full width. */
+@media (hover: none) and (max-width: 900px) {
+  .lightbox {
+    --lightbox-side: 0.5rem;
+  }
+
+  .lightbox-nav {
+    display: none;
+  }
+}
+
+.lightbox-frame {
+  align-items: center;
+  animation: lightbox-photo-in 260ms ease both;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  max-height: 100%;
+  max-width: min(100%, 88rem);
+  position: relative;
+  z-index: 2;
+}
+
+.lightbox-frame img {
+  border-radius: 0.2rem;
+  max-height: calc(100vh - 2 * clamp(1rem, 3vw, 2.5rem) - 2.6rem);
+  max-height: calc(100svh - 2 * clamp(1rem, 3vw, 2.5rem) - 2.6rem);
+  max-width: 100%;
+  object-fit: contain;
+  width: auto;
+}
+
+.lightbox-caption {
+  color: rgba(255, 253, 248, 0.72);
+  font-family: var(--lightbox-font, system-ui, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  margin-top: 1rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@keyframes lightbox-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lightbox-photo-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
