@@ -302,11 +302,14 @@ function Home() {
 }
 
 function About() {
-  const aboutPhoto = photos.find((photo) => photo.slug === 'death-water') ?? photos[0];
+  const aboutPhoto = photos.find((photo) => photo.slug === 'genyen-walking-on') ?? photos[0];
 
   return (
     <section className="section about-section" id="about" aria-labelledby="about-title">
-      <div className="about-image-frame">
+      <div
+        className="about-image-frame"
+        style={{ aspectRatio: `${aboutPhoto.width} / ${aboutPhoto.height}` }}
+      >
         <img
           src={aboutPhoto.src}
           srcSet={aboutPhoto.srcSet}
