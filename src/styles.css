@@ -255,8 +255,18 @@ p {
 }
 
 .photo-grid {
-  column-count: 3;
-  column-gap: clamp(0.8rem, 2vw, 1.5rem);
+  --grid-gap: clamp(0.8rem, 2vw, 1.5rem);
+  align-items: flex-start;
+  display: flex;
+  gap: var(--grid-gap);
+}
+
+.photo-column {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--grid-gap);
+  min-width: 0;
 }
 
 .photo-card {
@@ -264,11 +274,10 @@ p {
   background: #f0eee8;
   border: 0;
   border-radius: 0.35rem;
-  break-inside: avoid;
   color: inherit;
   cursor: zoom-in;
   display: block;
-  margin: 0 0 clamp(0.8rem, 2vw, 1.5rem);
+  margin: 0;
   overflow: hidden;
   padding: 0;
   position: relative;
@@ -474,9 +483,6 @@ p {
     max-width: 15ch;
   }
 
-  .photo-grid {
-    column-count: 2;
-  }
 }
 
 @media (max-width: 640px) {
@@ -511,9 +517,6 @@ p {
     flex-direction: column;
   }
 
-  .photo-grid {
-    column-count: 1;
-  }
 
   .site-footer {
     align-items: flex-start;

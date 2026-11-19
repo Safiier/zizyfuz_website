@@ -1,8 +1,48 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { photos } from './data/photos.js';
 
 const email = 'zizyfuz@gmail.com';
+
+const gallerySizes = '(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw';
+
+// Number of masonry columns for the current screen width.
+function useColumnCount() {
+  const getCount = () => {
+    if (typeof window === 'undefined') return 3;
+    if (window.matchMedia('(max-width: 640px)').matches) return 1;
+    if (window.matchMedia('(max-width: 900px)').matches) return 2;
+    return 3;
+  };
+  const [count, setCount] = useState(getCount);
+
+  useEffect(() => {
+    const update = () => setCount(getCount());
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  return count;
+}
+
+// Place photos one by one into the currently shortest column, so the visual
+// order follows the curated order in photos.js (left to right, top to bottom).
+function distributeIntoColumns(items, columnCount) {
+  const columns = Array.from({ length: columnCount }, () => []);
+  const heights = new Array(columnCount).fill(0);
+  const gapAllowance = 0.04;
+
+  items.forEach((photo, index) => {
+    let target = 0;
+    for (let column = 1; column < columnCount; column += 1) {
+      if (heights[column] < heights[target] - 0.001) target = column;
+    }
+    columns[target].push({ photo, index });
+    heights[target] += photo.height / photo.width + gapAllowance;
+  });
+
+  return columns;
+}
 
 function Logo() {
   return (
@@ -42,7 +82,14 @@ function Home() {
   return (
     <section className="hero" id="home" aria-label="zizyfuz photography home">
       <div className="hero-image-wrap">
-        <img className="hero-image" src={heroPhoto.src} alt={heroPhoto.alt ?? heroPhoto.title} />
+        <img
+          className="hero-image"
+          src={heroPhoto.src}
+          srcSet={heroPhoto.srcSet}
+          sizes="100vw"
+          alt={heroPhoto.alt ?? heroPhoto.title}
+          fetchPriority="high"
+        />
       </div>
     </section>
   );
@@ -54,15 +101,22 @@ function About() {
   return (
     <section className="section about-section" id="about" aria-labelledby="about-title">
       <div className="about-image-frame">
-        <img src={aboutPhoto.src} alt={aboutPhoto.alt ?? aboutPhoto.title} />
+        <img
+          src={aboutPhoto.src}
+          srcSet={aboutPhoto.srcSet}
+          sizes="(max-width: 900px) 100vw, 55vw"
+          alt={aboutPhoto.alt ?? aboutPhoto.title}
+          loading="lazy"
+        />
       </div>
       <div className="about-copy">
         <p className="eyebrow">About</p>
-        <h2 id="about-title">"You are the first audience of your own life."</h2>
+        <h2 id="about-title">“You are the first audience of your own life.”</h2>
         <p>
-          I lived in Chongqing, Singapore, and currently pursuing a degree in
-          the UK. Photography is the channel that allows me to explore the world
-          and myself.
+          I have lived in Chongqing, Singapore, and currently pursuing a degree
+          in the UK. I plan the journeys and explore the vast world through road
+          trips. Let photography be the channel that guides you to view the
+          world and yourself.
         </p>
       </div>
     </section>
@@ -71,6 +125,11 @@ function About() {
 
 function Gallery() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null);
+  const columnCount = useColumnCount();
+  const columns = useMemo(
+    () => distributeIntoColumns(photos, columnCount),
+    [columnCount]
+  );
   const selectedPhoto =
     selectedPhotoIndex === null ? null : photos[selectedPhotoIndex];
 
@@ -95,22 +154,30 @@ function Gallery() {
       </div>
 
       <div className="photo-grid">
-        {photos.map((photo, index) => (
-          <button
-            className={`photo-card ${photo.orientation}`}
-            key={photo.slug}
-            onClick={() => setSelectedPhotoIndex(index)}
-            style={{ '--photo-aspect-ratio': `${photo.width} / ${photo.height}` }}
-            type="button"
-          >
-            <img
-              src={photo.src}
-              alt={photo.alt ?? photo.title}
-              width={photo.width}
-              height={photo.height}
-              loading={index < 6 ? 'eager' : 'lazy'}
-            />
-          </button>
+        {columns.map((column, columnIndex) => (
+          <div className="photo-column" key={columnIndex}>
+            {column.map(({ photo, index }) => (
+              <button
+                className={`photo-card ${photo.orientation}`}
+                key={photo.slug}
+                onClick={() => setSelectedPhotoIndex(index)}
+                style={{ '--photo-aspect-ratio': `${photo.width} / ${photo.height}` }}
+                type="button"
+                aria-label={`Open ${photo.title}`}
+              >
+                <img
+                  src={photo.src}
+                  srcSet={photo.srcSet}
+                  sizes={gallerySizes}
+                  alt={photo.alt ?? photo.title}
+                  width={photo.width}
+                  height={photo.height}
+                  loading={index < 6 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </button>
+            ))}
+          </div>
         ))}
       </div>
 
@@ -185,7 +252,12 @@ function Lightbox({ photo, onClose, onNext, onPrevious }) {
         key={photo.slug}
         onClick={(event) => event.stopPropagation()}
       >
-        <img src={photo.src} alt={photo.alt ?? photo.title} />
+        <img
+          src={photo.src}
+          srcSet={photo.srcSet}
+          sizes="96vw"
+          alt={photo.alt ?? photo.title}
+        />
       </figure>
     </div>
   );
@@ -235,7 +307,7 @@ function App() {
       </main>
       <footer className="site-footer">
         <Logo />
-        <p>(c) 2026 zizyfuz. All photographs reserved.</p>
+        <p>© 2026 zizyfuz. All photographs reserved.</p>
       </footer>
     </>
   );
