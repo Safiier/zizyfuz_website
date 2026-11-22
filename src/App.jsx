@@ -284,13 +284,17 @@ function Chapter({ series }) {
 }
 
 // "Magnetic" alignment for the series covers (computers only).
-// Scrolling stays completely free. Only when the reader has been scrolling
-// towards the next cover and stops with that cover less than GLIDE_THRESHOLD
-// of a screen away from filling it, the page glides the rest of the way.
-// It never pulls back against the reader's direction, and any wheel, touch,
-// key or click during the glide stops it at once.
+// Scrolling stays free. When the reader stops scrolling (one "gesture" = a
+// run of scrolling with no pause), the page glides to a cover only if:
+//   - the next cover in the direction they were going is within
+//     GLIDE_THRESHOLD of a screen, or
+//   - they went past a cover during this gesture (fast scrolling tends to
+//     overshoot) and stopped within GLIDE_THRESHOLD beyond it.
+// A cover they were already on and simply scrolled away from is never pulled
+// back, so a single wheel step always moves the page. Any wheel, touch, key
+// or click during the glide stops it at once.
 const GLIDE_THRESHOLD = 1 / 3; // of the screen height
-const GLIDE_SETTLE_MS = 90; // pause after the last scroll before gliding
+const GLIDE_SETTLE_MS = 110; // pause after the last scroll/wheel before gliding
 
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
@@ -299,8 +303,8 @@ function useChapterGlide(sectionRef) {
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
     if (!finePointer.matches || prefersReducedMotion()) return undefined;
 
-    let lastY = window.scrollY;
-    let direction = 0;
+    let gestureStart = null; // scroll position when the current gesture began
+    let lastSettledY = window.scrollY; // last known position before scrolling
     let settleTimer = 0;
     let frame = 0;
     let gliding = false;
@@ -339,41 +343,67 @@ function useChapterGlide(sectionRef) {
         const t = Math.min(1, (now - start) / duration);
         window.scrollTo({ top: from + distance * easeInOutCubic(t), behavior: 'instant' });
         frame = t < 1 ? requestAnimationFrame(step) : 0;
-        if (t >= 1) gliding = false;
+        if (t >= 1) {
+          gliding = false;
+          lastSettledY = window.scrollY;
+        }
       };
       frame = requestAnimationFrame(step);
     };
 
     const settle = () => {
-      if (gliding || direction === 0) return;
+      const from = gestureStart;
+      gestureStart = null;
+      if (gliding || from === null) return;
       const y = window.scrollY;
+      const travelled = y - from;
+      if (Math.abs(travelled) < 1) return;
+      const direction = Math.sign(travelled);
       const reach = window.innerHeight * GLIDE_THRESHOLD;
-      const ahead = stops().find((stop) =>
-        direction > 0 ? stop > y + 1 && stop - y <= reach : stop < y - 1 && y - stop <= reach
-      );
-      if (ahead !== undefined) glideTo(ahead);
+
+      const candidates = stops().filter((stop) => {
+        const offset = stop - y; // > 0: below the current position
+        if (Math.abs(offset) < 1 || Math.abs(offset) > reach) return false;
+        const ahead = Math.sign(offset) === direction;
+        // Passed during this gesture: strictly between where it began and now.
+        const passed = (stop - from) * direction > 1 && (y - stop) * direction > 0;
+        return ahead || passed;
+      });
+      if (!candidates.length) return;
+      const nearest = candidates.reduce((a, b) => (Math.abs(b - y) < Math.abs(a - y) ? b : a));
+      glideTo(nearest);
+    };
+
+    const scheduleSettle = () => {
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(settle, GLIDE_SETTLE_MS);
     };
 
     const onScroll = () => {
-      const y = window.scrollY;
-      if (!gliding && y !== lastY) direction = Math.sign(y - lastY);
-      lastY = y;
-      window.clearTimeout(settleTimer);
-      if (!gliding) settleTimer = window.setTimeout(settle, GLIDE_SETTLE_MS);
+      if (gliding) {
+        lastSettledY = window.scrollY; // the glide's own movement isn't a gesture
+        return;
+      }
+      if (gestureStart === null) gestureStart = lastSettledY;
+      lastSettledY = window.scrollY;
+      scheduleSettle();
     };
 
-    const interrupt = () => {
+    // The wheel can fire before the page actually moves; treat it as part
+    // of the gesture so the glide waits until the reader has really stopped.
+    const onInput = () => {
       if (gliding) stopGlide();
+      if (gestureStart !== null) scheduleSettle();
     };
 
-    const interruptEvents = ['wheel', 'touchstart', 'keydown', 'mousedown'];
+    const inputEvents = ['wheel', 'touchstart', 'keydown', 'mousedown'];
     window.addEventListener('scroll', onScroll, { passive: true });
-    interruptEvents.forEach((type) => window.addEventListener(type, interrupt, { passive: true }));
+    inputEvents.forEach((type) => window.addEventListener(type, onInput, { passive: true }));
     return () => {
       stopGlide();
       window.clearTimeout(settleTimer);
       window.removeEventListener('scroll', onScroll);
-      interruptEvents.forEach((type) => window.removeEventListener(type, interrupt));
+      inputEvents.forEach((type) => window.removeEventListener(type, onInput));
     };
   }, [sectionRef]);
 }
