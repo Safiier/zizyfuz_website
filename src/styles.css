@@ -305,7 +305,48 @@ img {
    Series chapters: full-screen covers that stack over each other as
    you scroll, each with a giant condensed title.
    ------------------------------------------------------------------ */
+.chapters {
+  position: relative;
+}
+
+/* Snap stops: one per cover, a screen apart (matches the cover height). */
+.chapter-stop {
+  height: 1px;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  scroll-snap-align: start;
+  top: calc(var(--i) * max(100vh, 30rem));
+  top: calc(var(--i) * max(100svh, 30rem));
+  width: 1px;
+}
+
+/* Mouse-wheel and trackpad scrolling on the home page settles on whole
+   screens: the first screen, About, each series cover, then Selected (which
+   is taller than the screen, so it scrolls freely inside) and the end of the
+   page. Phones keep ordinary scrolling. */
+@media (hover: hover) and (pointer: fine) {
+  html.snap-home {
+    scroll-snap-type: y mandatory;
+  }
+
+  .snap-home .hero,
+  .snap-home .about,
+  .snap-home .selected {
+    scroll-snap-align: start;
+  }
+
+  .snap-home .footer {
+    scroll-snap-align: end;
+  }
+}
+
+.chapter:focus-visible {
+  outline-offset: -6px;
+}
+
 .chapter {
+  cursor: pointer;
   display: block;
   height: 100vh;
   height: 100svh;

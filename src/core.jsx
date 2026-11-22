@@ -117,6 +117,11 @@ export function useRoute() {
   // animation across the old page. Links within the same page (e.g. Home →
   // Gallery) keep the browser's normal smooth scroll.
   useLayoutEffect(() => {
+    // Scroll snapping is for the home page only (html.snap-home in the CSS).
+    // Switch it before jumping, so the jump on another page isn't pulled to
+    // a home-page snap stop.
+    document.documentElement.classList.toggle('snap-home', route.view === 'main');
+
     const viewKey = routeViewKey(route);
     const changedPage = previousViewKey.current !== viewKey;
     previousViewKey.current = viewKey;
@@ -255,6 +260,7 @@ export function Lightbox({ items, index, photo, onClose, onNext, onPrevious }) {
         className="lightbox-frame"
         key={photo.slug}
         onClick={(event) => event.stopPropagation()}
+        style={{ '--ratio': photo.width / photo.height }}
       >
         <img
           src={photo.src}

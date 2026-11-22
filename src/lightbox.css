@@ -109,19 +109,29 @@
   display: flex;
   flex-direction: column;
   margin: 0;
-  max-height: 100%;
-  max-width: min(100%, 88rem);
   position: relative;
   z-index: 2;
 }
 
+/* The photo's width is worked out directly from the screen size and the
+   photo's shape (--ratio = width / height): as wide as the space allows, but
+   never taller than the screen. Relying on max-width: 100% here made Safari
+   on iPhone shrink the photo to the width of its caption. */
 .lightbox-frame img {
+  --lightbox-pad: clamp(1rem, 3vw, 2.5rem);
   border-radius: 0.2rem;
-  max-height: calc(100vh - 2 * clamp(1rem, 3vw, 2.5rem) - 2.6rem);
-  max-height: calc(100svh - 2 * clamp(1rem, 3vw, 2.5rem) - 2.6rem);
-  max-width: 100%;
-  object-fit: contain;
-  width: auto;
+  height: auto;
+  max-width: none;
+  width: min(
+    100vw - 2 * var(--lightbox-side),
+    (100vh - 2 * var(--lightbox-pad) - 2.6rem) * var(--ratio),
+    88rem
+  );
+  width: min(
+    100vw - 2 * var(--lightbox-side),
+    (100svh - 2 * var(--lightbox-pad) - 2.6rem) * var(--ratio),
+    88rem
+  );
 }
 
 .lightbox-caption {

@@ -242,10 +242,25 @@ function Hero() {
   );
 }
 
+// The chapter is clickable but deliberately not an <a href>: a real link makes
+// the browser show its address in the bottom-left corner on hover, right over
+// the coordinates.
 function Chapter({ series }) {
   const cover = series.coverPhoto;
+  const open = () => {
+    window.location.hash = `series-${series.key}`;
+  };
   return (
-    <a className={`chapter ${chapterClass(series)}`} href={`#series-${series.key}`}>
+    <div
+      className={`chapter ${chapterClass(series)}`}
+      role="link"
+      tabIndex={0}
+      aria-label={`${series.title}, ${series.years}`}
+      onClick={open}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') open();
+      }}
+    >
       <img
         className="chapter-image"
         src={cover.src}
@@ -264,13 +279,19 @@ function Chapter({ series }) {
           <span className="coordinates">{series.coordinates}</span>
         </span>
       </span>
-    </a>
+    </div>
   );
 }
 
 function SeriesChapters() {
   return (
     <section className="chapters" id="series" aria-label="Series">
+      {/* Invisible stops, one screen apart, that the page snaps to so each
+          cover fills the screen exactly after a scroll. (The covers themselves
+          are sticky, so they can't be used as stops.) */}
+      {seriesList.map((series, i) => (
+        <span className="chapter-stop" style={{ '--i': i }} key={`stop-${series.key}`} aria-hidden="true" />
+      ))}
       {seriesList.map((series) => (
         <Chapter series={series} key={series.key} />
       ))}
