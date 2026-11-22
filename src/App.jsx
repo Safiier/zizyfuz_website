@@ -1,7 +1,7 @@
 // Design A — "Night Drive"
 // Dark, cinematic. Each series is a full-screen chapter with a giant
 // condensed title; series pages run like a sequence of film frames.
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { heroPhotos, photos } from './data/photos.js';
 import { photoCoordinates } from './data/places.js';
@@ -283,15 +283,99 @@ function Chapter({ series }) {
   );
 }
 
+// "Magnetic" alignment for the series covers (computers only).
+// Scrolling stays completely free. Only when the reader has been scrolling
+// towards the next cover and stops with that cover less than GLIDE_THRESHOLD
+// of a screen away from filling it, the page glides the rest of the way.
+// It never pulls back against the reader's direction, and any wheel, touch,
+// key or click during the glide stops it at once.
+const GLIDE_THRESHOLD = 1 / 3; // of the screen height
+const GLIDE_SETTLE_MS = 90; // pause after the last scroll before gliding
+
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+
+function useChapterGlide(sectionRef) {
+  useEffect(() => {
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    if (!finePointer.matches || prefersReducedMotion()) return undefined;
+
+    let lastY = window.scrollY;
+    let direction = 0;
+    let settleTimer = 0;
+    let frame = 0;
+    let gliding = false;
+
+    // Scroll positions where a cover exactly fills the screen, plus the start
+    // of the section after the covers (so the last cover hands over cleanly).
+    const stops = () => {
+      const section = sectionRef.current;
+      if (!section) return [];
+      const covers = [...section.querySelectorAll(':scope > .chapter')];
+      const top = section.getBoundingClientRect().top + window.scrollY;
+      const height = covers[0]?.offsetHeight ?? window.innerHeight;
+      return [...covers.map((_, i) => top + i * height), top + covers.length * height];
+    };
+
+    const stopGlide = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      gliding = false;
+    };
+
+    const glideTo = (target) => {
+      const from = window.scrollY;
+      const distance = target - from;
+      const duration = Math.min(800, Math.max(420, Math.abs(distance) * 2.2));
+      const start = performance.now();
+      gliding = true;
+      const step = (now) => {
+        const t = Math.min(1, (now - start) / duration);
+        window.scrollTo({ top: from + distance * easeInOutCubic(t), behavior: 'instant' });
+        frame = t < 1 ? requestAnimationFrame(step) : 0;
+        if (t >= 1) gliding = false;
+      };
+      frame = requestAnimationFrame(step);
+    };
+
+    const settle = () => {
+      if (gliding || direction === 0) return;
+      const y = window.scrollY;
+      const reach = window.innerHeight * GLIDE_THRESHOLD;
+      const ahead = stops().find((stop) =>
+        direction > 0 ? stop > y + 1 && stop - y <= reach : stop < y - 1 && y - stop <= reach
+      );
+      if (ahead !== undefined) glideTo(ahead);
+    };
+
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (!gliding && y !== lastY) direction = Math.sign(y - lastY);
+      lastY = y;
+      window.clearTimeout(settleTimer);
+      if (!gliding) settleTimer = window.setTimeout(settle, GLIDE_SETTLE_MS);
+    };
+
+    const interrupt = () => {
+      if (gliding) stopGlide();
+    };
+
+    const interruptEvents = ['wheel', 'touchstart', 'keydown', 'mousedown'];
+    window.addEventListener('scroll', onScroll, { passive: true });
+    interruptEvents.forEach((type) => window.addEventListener(type, interrupt, { passive: true }));
+    return () => {
+      stopGlide();
+      window.clearTimeout(settleTimer);
+      window.removeEventListener('scroll', onScroll);
+      interruptEvents.forEach((type) => window.removeEventListener(type, interrupt));
+    };
+  }, [sectionRef]);
+}
+
 function SeriesChapters() {
+  const sectionRef = useRef(null);
+  useChapterGlide(sectionRef);
   return (
-    <section className="chapters" id="series" aria-label="Series">
-      {/* Invisible stops, one screen apart, that the page snaps to so each
-          cover fills the screen exactly after a scroll. (The covers themselves
-          are sticky, so they can't be used as stops.) */}
-      {seriesList.map((series, i) => (
-        <span className="chapter-stop" style={{ '--i': i }} key={`stop-${series.key}`} aria-hidden="true" />
-      ))}
+    <section className="chapters" id="series" aria-label="Series" ref={sectionRef}>
       {seriesList.map((series) => (
         <Chapter series={series} key={series.key} />
       ))}
