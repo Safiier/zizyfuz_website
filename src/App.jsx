@@ -242,12 +242,18 @@ function Hero() {
   );
 }
 
+// Set when a cover on the home page is clicked; read once by SeriesPage.
+let openedFromHover = false;
+
 // The chapter is clickable but deliberately not an <a href>: a real link makes
 // the browser show its address in the bottom-left corner on hover, right over
 // the coordinates.
 function Chapter({ series }) {
   const cover = series.coverPhoto;
   const open = () => {
+    // Remember that the cover was opened from its hovered look, so the series
+    // page can start in that same look and ease out of it (no visible jump).
+    openedFromHover = window.matchMedia('(hover: hover)').matches;
     window.location.hash = `series-${series.key}`;
   };
   return (
@@ -485,10 +491,18 @@ function SeriesPage({ series }) {
   const position = seriesList.findIndex((s) => s.key === series.key);
   const next = seriesList[(position + 1) % seriesList.length];
   const cover = series.coverPhoto;
+  // Opened by clicking a hovered cover on the home page: start with the same
+  // wider title and brighter photo, then ease back, exactly as the hover
+  // would have faded out.
+  const [fromHover] = useState(() => {
+    const value = openedFromHover;
+    openedFromHover = false;
+    return value;
+  });
 
   return (
     <>
-      <header className={`series-cover ${chapterClass(series)}`}>
+      <header className={`series-cover ${chapterClass(series)} ${fromHover ? 'from-hover' : ''}`}>
         <img
           src={cover.src}
           srcSet={cover.srcSet}
