@@ -125,7 +125,10 @@ export function useRoute() {
     const target =
       route.view === 'main' && route.anchor ? document.getElementById(route.anchor) : null;
     if (target) {
-      target.scrollIntoView({ behavior: 'instant', block: 'start' });
+      // Jump straight to the target, rounded up to a whole pixel so a
+      // full-screen section never leaves a hairline of the one above it.
+      const y = target.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: Math.ceil(y - 0.01), left: 0, behavior: 'instant' });
     } else {
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }

@@ -305,15 +305,22 @@ function useChapterGlide(sectionRef) {
     let frame = 0;
     let gliding = false;
 
-    // Scroll positions where a cover exactly fills the screen, plus the start
-    // of the section after the covers (so the last cover hands over cleanly).
+    // Scroll positions where a cover exactly fills the screen (read from the
+    // invisible .chapter-anchor markers, which sit exactly where each cover
+    // starts), plus the end of the covers so the last one hands over cleanly.
+    // Positions are rounded up to a whole pixel (browsers round scroll
+    // positions): stopping a fraction of a pixel short would leave a thin line
+    // of the previous cover showing at the top.
     const stops = () => {
       const section = sectionRef.current;
       if (!section) return [];
-      const covers = [...section.querySelectorAll(':scope > .chapter')];
-      const top = section.getBoundingClientRect().top + window.scrollY;
-      const height = covers[0]?.offsetHeight ?? window.innerHeight;
-      return [...covers.map((_, i) => top + i * height), top + covers.length * height];
+      const exact = (y) => Math.ceil(y - 0.01);
+      const anchors = [...section.querySelectorAll('.chapter-anchor')];
+      const rect = section.getBoundingClientRect();
+      return [
+        ...anchors.map((anchor) => exact(anchor.getBoundingClientRect().top + window.scrollY)),
+        exact(rect.bottom + window.scrollY),
+      ];
     };
 
     const stopGlide = () => {
@@ -375,7 +382,25 @@ function SeriesChapters() {
   const sectionRef = useRef(null);
   useChapterGlide(sectionRef);
   return (
-    <section className="chapters" id="series" aria-label="Series" ref={sectionRef}>
+    <section
+      className="chapters"
+      id="series"
+      aria-label="Series"
+      ref={sectionRef}
+      style={{ '--count': seriesList.length }}
+    >
+      {/* One invisible marker where each cover starts. The covers are sticky,
+          so the page can't jump to them directly; "All series" on a series
+          page jumps to its marker (#chapter-<key>) instead. */}
+      {seriesList.map((series, i) => (
+        <span
+          className="chapter-anchor"
+          id={`chapter-${series.key}`}
+          style={{ '--i': i }}
+          key={`anchor-${series.key}`}
+          aria-hidden="true"
+        />
+      ))}
       {seriesList.map((series) => (
         <Chapter series={series} key={series.key} />
       ))}
@@ -443,7 +468,7 @@ function SeriesPage({ series }) {
         />
         <span className="chapter-shade" aria-hidden="true" />
         <div className="chapter-text">
-          <a className="back-link" href="#series">All series</a>
+          <a className="back-link" href={`#chapter-${series.key}`}>All series</a>
           <h1 className="chapter-title">{series.title}</h1>
           <p className="chapter-meta">
             <span>{series.years}</span>
